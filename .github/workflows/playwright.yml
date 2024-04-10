@@ -36,6 +36,7 @@ jobs:
           npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
 
       - name: Compare executed tests with all tests
+        if: ${{ !cancelled() }}
         run: |
           all_tests=$(cat executed_tests_shard_${{ matrix.shardIndex }}.txt)
           executed_tests=$(cat executed_tests_shard_${{ matrix.shardIndex }}.txt)
