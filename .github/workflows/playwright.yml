@@ -25,11 +25,13 @@ jobs:
       run: |
         for file in tests/*.js; do
             shard=$(basename "$file" .js | awk -F"-" '{print $NF}')
+            echo "File: $file, Shard: $shard"
             if [ "$shard" -eq "${{ matrix.shardIndex }}" ]; then
-                echo "File: $file"
+                echo "Printing tests in $file for shard ${matrix.shardIndex}"
                 grep -n -E 'test\(' "$file"
             fi
         done
+        echo "Running Playwright tests for shard ${matrix.shardIndex}"
         npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
     - name: Upload blob report to GitHub Actions Artifacts
