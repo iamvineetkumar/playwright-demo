@@ -22,22 +22,17 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Print tests in shard
-  run: |
-    tests=$(npx playwright test --list)
-    total_tests=$(echo "$tests" | wc -l)
-    tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
-    start_index=$((tests_per_shard * (${ { matrix.shardIndex }} - 1) + 1))
-    end_index=$((tests_per_shard * ${{ matrix.shardIndex }}))
-    echo "$tests" | sed -n "${start_index},${end_index}p"
+        run: |
+          tests=$(npx playwright test --list)
+          total_tests=$(echo "$tests" | wc -l)
+          tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
+          start_index=$((tests_per_shard * (${{ matrix.shardIndex }} - 1) + 1))
+          end_index=$((tests_per_shard * ${{ matrix.shardIndex }}))
+          echo "$tests" | sed -n "${start_index},${end_index}p"
 
-    - name: Run Playwright tests
-    run: npx playwright test --shard=${{matrix.shardIndex }}/${{ matrix.shardTotal }}
+      - name: Run Playwright tests
+        run: npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
-
-    - name: Upload blob report to GitHub Actions Artifacts
-      if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: blob-report-${{ matrix.shardIndex }}
-        path: blob-report
-        retention-days: 1
+      - name: Upload blob report to GitHub Actions Artifacts
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@
