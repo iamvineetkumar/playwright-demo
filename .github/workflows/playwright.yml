@@ -1,7 +1,7 @@
 name: Playwright Tests
 on:
   push:
-    branches: [ dev ]
+    branches: [dev]
 jobs:
   playwright-tests:
     timeout-minutes: 2
@@ -12,26 +12,27 @@ jobs:
         shardIndex: [1, 2, 3, 4]
         shardTotal: [4]
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 18
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright browsers
-      run: npx playwright install --with-deps
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
 
-    - name: Run Playwright tests and print test files/functions for current shard
-      run: |
-        for file in tests/*.js; do
-            shard=$(basename "$file" .js | awk -F"-" '{print $NF}')
-            if [ "$shard" -eq "${{ matrix.shardIndex }}" ]; then
-                echo "File: $file"
-                grep -n -E 'test\(' "$file"
-            fi
-        done
-        echo "Running Playwright tests for shard ${{ matrix.shardIndex }}"
-        npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+      - name: Print tests in shard
+  run: |
+    tests=$(npx playwright test --list)
+    total_tests=$(echo "$tests" | wc -l)
+    tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
+    start_index=$((tests_per_shard * (${ { matrix.shardIndex }} - 1) + 1))
+    end_index=$((tests_per_shard * ${{ matrix.shardIndex }}))
+    echo "$tests" | sed -n "${start_index},${end_index}p"
+
+    - name: Run Playwright tests
+    run: npx playwright test --shard=${{matrix.shardIndex }}/${{ matrix.shardTotal }}
+
 
     - name: Upload blob report to GitHub Actions Artifacts
       if: ${{ !cancelled() }}
