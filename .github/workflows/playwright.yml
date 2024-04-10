@@ -21,11 +21,14 @@ jobs:
     - name: Install Playwright browsers
       run: npx playwright install --with-deps
 
-    - name: Run Playwright tests and print test files/functions
+    - name: Run Playwright tests and print test files/functions for current shard
       run: |
-        for file in tests/*.ts; do
-            echo "File: $file"
-            grep -n -E 'test\(' "$file"
+        for file in tests/*.js; do
+            shard=$(basename "$file" .js | awk -F"-" '{print $NF}')
+            if [ "$shard" -eq "${{ matrix.shardIndex }}" ]; then
+                echo "File: $file"
+                grep -n -E 'test\(' "$file"
+            fi
         done
         npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
