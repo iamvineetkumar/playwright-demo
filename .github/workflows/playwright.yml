@@ -21,8 +21,13 @@ jobs:
     - name: Install Playwright browsers
       run: npx playwright install --with-deps
 
-    - name: Run Playwright tests
-      run: npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+    - name: Run Playwright tests and print test files/functions
+      run: |
+        for file in tests/*.ts; do
+            echo "File: $file"
+            grep -n -E 'test\(' "$file"
+        done
+        npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
     - name: Upload blob report to GitHub Actions Artifacts
       if: ${{ !cancelled() }}
