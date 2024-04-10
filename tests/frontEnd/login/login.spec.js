@@ -15,7 +15,10 @@
 import { test, expect } from '@playwright/test';
 import { HomePage } from '../pages/homePage';
 
-test('zoomcar page', async ({ page }) => {
+test('zoomcar page', async ({ page },testInfo) => {
+  console.log("title is :: zoom "+testInfo.title);
+  console.log("title path is :: zoom "+testInfo.titlePath);
+  console.log(`Running zoom ${testInfo.title}`);
   await page.goto('https://www.zoomcar.com/');
 // Expect a title "to contain" a substring.
   await expect.soft(page).toHaveTitle("Best Car Rental with Zoomcar | Explore & Drive Hassle-Free");

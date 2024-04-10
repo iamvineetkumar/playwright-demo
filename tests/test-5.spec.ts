@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
 
-test('test five', async ({ page }) => {
+test('test five', async ({ page },testInfo) => {
+  console.log("title is 5 :: "+testInfo.title);
+  console.log("title path is 5 :: "+testInfo.titlePath);
+  console.log(`Running 5 ${testInfo.title}`);
   await page.goto('https://www.zoomcar.com/');
   await page.getByText('Select Location').click();
   await page.getByText('Bangalore', { exact: true }).click();

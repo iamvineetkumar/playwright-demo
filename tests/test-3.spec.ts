@@ -1,6 +1,10 @@
 import { test, expect } from '@playwright/test';
 
-test('test three', async ({ page }) => {
+test('test three', async ({ page },testInfo) => {
+  console.log("title is 3 :: "+testInfo.title);
+  console.log("title path is 3 :: "+testInfo.titlePath);
+  console.log(`Running 3 ${testInfo.title}`);
+
   await page.goto('https://www.zoomcar.com/');
   await page.goto('https://www.zoomcar.com/in/ranchi');
   await page.getByRole('img', { name: 'close-icon' }).click();
