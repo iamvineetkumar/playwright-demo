@@ -28,7 +28,7 @@ jobs:
           tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
           start_index=$((tests_per_shard * (${{ matrix.shardIndex }} - 1) + 1))
           end_index=$((tests_per_shard * ${{ matrix.shardIndex }}))
-          echo "$tests" | sed -n "${start_index},${end_index}p" > executed_tests_shard_${{ matrix.shardIndex }}.txt
+          echo "$tests" | sed -n "${start_index},${end_index}p"
 
       - name: Run Playwright tests
         id: playwright_tests
