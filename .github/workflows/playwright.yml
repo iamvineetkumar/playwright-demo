@@ -31,7 +31,19 @@ jobs:
           echo "$tests" | sed -n "${start_index},${end_index}p"
 
       - name: Run Playwright tests
-        run: npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+  id: playwright_tests
+  run: |
+    npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests.txt
+
+    - name: Compare executed tests with all tests
+     run: |
+    all_tests=$(npx playwright test --list)
+    executed_tests=$(cat executed_tests.txt)
+    echo "Executed tests:"
+    echo "$executed_tests"
+    echo "Not executed tests:"
+    diff <(echo "$all_tests") <(echo "$executed_tests") | grep -E "^>" | sed 's/>//g' | sed '/^\s*$/d'
+
 
       - name: Upload blob report to GitHub Actions Artifacts
         if: ${{ !cancelled() }}
