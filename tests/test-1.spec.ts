@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 test('test one', async ({ page },testInfo) => {
-  console.log("title is 1 :: "+testInfo.title);
-  console.log("title path is 1 :: "+testInfo.titlePath);
+  console.log("title is test one :: "+testInfo.title);
+  console.log("title path is test one :: "+testInfo.titlePath);
   console.log(`Running 1 ${testInfo.title}`);
   await page.goto('https://www.zoomcar.com/');
   await page.goto('https://www.zoomcar.com/in/ranchi');
@@ -29,4 +29,6 @@ test('test one', async ({ page },testInfo) => {
   await page.locator('div:nth-child(9) > .list-items > .list-wrapper > .list').click();
   await page.getByText('Active FASTag').click();
   await page.getByText('Diesel').click();
+  console.log(`Finished ${test.info().title} with status ${test.info().status}`);
+
 });

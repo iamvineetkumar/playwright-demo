@@ -27,5 +27,7 @@ test('zoomcar page', async ({ page },testInfo) => {
    await homePage.clickOnCloseModal();
   await homePage.verifyDropDownSelectText();
   await homePage.verifyLocationText();
+  console.log(`Finished ${test.info().title} with status ${test.info().status}`);
+
 
 });

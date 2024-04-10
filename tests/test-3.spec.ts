@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test('test three', async ({ page },testInfo) => {
-  console.log("title is 3 :: "+testInfo.title);
-  console.log("title path is 3 :: "+testInfo.titlePath);
-  console.log(`Running 3 ${testInfo.title}`);
+  console.log("title is test three :: "+testInfo.title);
+  console.log("title path is test three :: "+testInfo.titlePath);
+  console.log(`Running test three ${testInfo.title}`);
 
   await page.goto('https://www.zoomcar.com/');
   await page.goto('https://www.zoomcar.com/in/ranchi');
@@ -12,4 +12,6 @@ test('test three', async ({ page },testInfo) => {
   await page.locator('.option').first().click();
   await page.getByText('Continue with Email ID').click();
   await page.getByPlaceholder('Email ID').fill('vkr5959@gmail.com');
+  console.log(`Finished ${test.info().title} with status ${test.info().status}`);
+
 });
