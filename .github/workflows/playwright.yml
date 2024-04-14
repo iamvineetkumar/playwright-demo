@@ -28,10 +28,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-      - name: Install shyaml
-        run: |
-          pip install --user shyaml
-          echo 'PATH="$HOME/.local/bin:$PATH"' >> $GITHUB_ENV
 
       
       - name: Install Playwright browsers
