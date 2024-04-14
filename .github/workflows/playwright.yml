@@ -57,7 +57,7 @@ jobs:
       - name: Run Playwright tests
         id: playwright_tests
         run: |
-          npx playwright test --workers=4  --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
+          npx playwright test   --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
       
       - name: Compare executed tests with all tests
         run: |
