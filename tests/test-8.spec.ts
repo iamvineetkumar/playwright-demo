@@ -6,7 +6,7 @@ test('test eight', async ({ page },testInfo) => {
   console.log(`Running test eight ${testInfo.title}`);
   await page.goto('https://www.zoomcar.com/');
   await page.getByText('Select Location').click();
-  await page.getByText('Bangalore', { exact: true }).click();
+  await page.getByText('Pune', { exact: true }).click();
   await page.getByRole('img', { name: 'close-icon' }).click();
   await page.getByText('GET CAR').click();
   await page.getByText('Ratings - High to Low').click();
