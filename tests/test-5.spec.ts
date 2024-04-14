@@ -15,6 +15,8 @@ test('test five', async ({ page },testInfo) => {
   await page.getByText('menu').click();
   const page1Promise = page.waitForEvent('popup');
   await page.getByRole('link', { name: 'Become a Host' }).nth(1).click();
+  console.log("---- I am 5------");
+
   console.log(`Finished ${test.info().title} with status ${test.info().status}`);
 
 });

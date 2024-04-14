@@ -29,6 +29,8 @@ test('test one', async ({ page },testInfo) => {
   await page.locator('div:nth-child(9) > .list-items > .list-wrapper > .list').click();
   await page.getByText('Active FASTag').click();
   await page.getByText('Diesel').click();
+  console.log("---- I am 1------");
+
   console.log(`Finished ${test.info().title} with status ${test.info().status}`);
 
 });

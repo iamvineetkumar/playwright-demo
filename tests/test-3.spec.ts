@@ -12,6 +12,8 @@ test('test three', async ({ page },testInfo) => {
   await page.locator('.option').first().click();
   await page.getByText('Continue with Email ID').click();
   await page.getByPlaceholder('Email ID').fill('vkr5959@gmail.com');
+  console.log("---- I am 3------");
+
   console.log(`Finished ${test.info().title} with status ${test.info().status}`);
 
 });

@@ -14,6 +14,8 @@ test('test two', async ({ page },testInfo) => {
   await page.getByText('GET CAR').click();
   await page.getByText('Within 2 km').click();
   await page.getByText('GET CAR').click();
+  console.log("---- I am 2------");
+
   console.log(`Finished ${test.info().title} with status ${test.info().status}`);
 
 });

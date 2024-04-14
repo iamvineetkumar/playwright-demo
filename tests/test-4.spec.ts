@@ -18,6 +18,8 @@ test('test four', async ({ page },testInfo) => {
   await page.getByText('Enter details to login/sign-up').click({
     clickCount: 3
   });
+  console.log("---- I am 4------");
+
   console.log(`Finished ${test.info().title} with status ${test.info().status}`);
 
 });
