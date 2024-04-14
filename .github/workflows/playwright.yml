@@ -30,8 +30,8 @@ jobs:
         run: npm ci
       - name: Install shyaml
         run: |
-          pip install shyaml
-          echo "::add-path::$(python -m site --user-base)/bin"
+          pip install --user shyaml
+          echo 'PATH="$HOME/.local/bin:$PATH"' >> $GITHUB_ENV
 
       
       - name: Install Playwright browsers
