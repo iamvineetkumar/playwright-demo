@@ -33,8 +33,11 @@ jobs:
         run: npx playwright install --with-deps
       
       - name: Print tests in shard
+
         run: |
           test_list=$(npx playwright test --list)
+          echo "Test list:"
+          echo "$test_list"
           total_tests=$(echo "$test_list" | wc -l)
           tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
           start_index=$((tests_per_shard * (${{ matrix.shardIndex }} - 1) + 1))
