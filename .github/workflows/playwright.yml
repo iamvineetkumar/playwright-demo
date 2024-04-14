@@ -31,10 +31,10 @@ jobs:
       
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
-
+        
       - name: Print tests in shard
         run: |
-          test_list=$(npx playwright test --list)
+          test_list=$(npx playwright test --list | sed -e '/^Total:/d')
           echo "Test list:"
           echo "$test_list"
           test_files=$(echo "$test_list" | awk -F ' › ' '{print $2}')
@@ -50,6 +50,7 @@ jobs:
           echo "Start index: $start_index"
           echo "End index: $end_index"
           sed -n "${start_index},${end_index}p" <<< "$test_files"
+
 
       
       - name: Run Playwright tests
