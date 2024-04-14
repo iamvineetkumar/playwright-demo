@@ -33,11 +33,6 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Install js-yaml
-        run: npm install js-yaml
-
-      - name: Install js-yaml
-        run: npm install js-yaml
 
       - name: Read test mapping
         id: read_mapping
@@ -51,8 +46,9 @@ jobs:
           shard_index=${{ matrix.shardIndex }}
           yaml_data="${{ steps.read_mapping.outputs.mapping }}"
           echo "YAML data: $yaml_data"
-          test_mapping=$(echo "$yaml_data" | node -e "const yaml = require('js-yaml'); const data = yaml.load(process.stdin); console.log('Parsed YAML data:', data); console.log('Shards:', data.shards); console.log('Tests for shard $((shard_index - 1)):', data.shards[$((shard_index - 1))]?.tests || 'N/A')")
+          test_mapping=$(echo "$yaml_data" | node -e "const yaml = require('js-yaml'); const data = yaml.load(process.stdin); console.log('Parsed YAML data:', data); console.log('Shards:', data.shards); if (data.shards) { console.log('Tests for shard $((shard_index - 1)):', data.shards[$((shard_index - 1))]?.tests || 'N/A'); } else { console.log('Shards array is undefined or empty'); }")
           echo "::set-output name=tests::${test_mapping}"
+
 
 
 
