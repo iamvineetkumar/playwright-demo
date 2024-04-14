@@ -34,7 +34,7 @@ jobs:
       - name: Read test mapping
         id: read_mapping
         run: |
-          echo "::set-output name=mapping::$(cat test_mapping.yml)"
+          echo "::set-output name=mapping::$(cat .github/workflows/test_mapping.yml)"
 
       - name: Determine tests for shard
         id: determine_tests
