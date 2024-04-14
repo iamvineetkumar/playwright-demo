@@ -49,8 +49,11 @@ jobs:
         id: determine_tests
         run: |
           shard_index=${{ matrix.shardIndex }}
-          test_mapping=$(echo "${{ steps.read_mapping.outputs.mapping }}" | node -e "const yaml = require('js-yaml'); const data = yaml.load(process.stdin); console.log(data.shards[$((shard_index - 1))].tests)")
+          yaml_data="${{ steps.read_mapping.outputs.mapping }}"
+          echo "YAML data: $yaml_data"
+          test_mapping=$(echo "$yaml_data" | node -e "const yaml = require('js-yaml'); const data = yaml.load(process.stdin); console.log('Parsed YAML data:', data); console.log('Shards:', data.shards); console.log('Tests for shard $((shard_index - 1)):', data.shards[$((shard_index - 1))]?.tests || 'N/A')")
           echo "::set-output name=tests::${test_mapping}"
+
 
 
       - name: Print tests in shard
