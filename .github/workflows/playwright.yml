@@ -23,17 +23,18 @@ jobs:
 
       - name: Print tests in shard
         run: |
-          tests=$(npx playwright test --list)
-          total_tests=$(echo "$tests" | wc -l)
-          tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
-          start_index=$((tests_per_shard * (${{ matrix.shardIndex }} - 1) + 1))
-          end_index=$((tests_per_shard * ${{ matrix.shardIndex }}))
-          echo "$tests" | sed -n "${start_index},${end_index}p"
+    tests=$(npx playwright test --list)
+    total_tests=$(echo "$tests" | wc -l)
+    tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
+    start_index=$((tests_per_shard * (${{ matrix.shardIndex }} - 1)))
+    end_index=$((tests_per_shard * ${{ matrix.shardIndex }}))
+    sed -n "${start_index},${end_index}p" <<< "$tests" > executed_tests_shard_${{ matrix.shardIndex }}.txt
+
 
       - name: Run Playwright tests
         id: playwright_tests
         run: |
-          npx playwright test --workers=4  --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
+          npx playwright test   --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
 
       - name: Compare executed tests with all tests
         if: ${{ failure() }}
