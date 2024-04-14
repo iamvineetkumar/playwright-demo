@@ -36,11 +36,12 @@ jobs:
           echo "Start index: $start_index"
           echo "End index: $end_index"
           sed -n "${start_index},${end_index}p" <<< "$tests" > executed_tests_shard_${{ matrix.shardIndex }}.txt
+          echo "$tests" | sed -n "${start_index},${end_index}p"
       
       - name: Run Playwright tests
         id: playwright_tests
         run: |
-          npx playwright test --workers=4  --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
+          npx playwright test   --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
       
       - name: Compare executed tests with all tests
         if: ${{ failure() }}
