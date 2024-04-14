@@ -31,13 +31,13 @@ jobs:
       
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
-        
+
       - name: Print tests in shard
         run: |
-          test_list=$(npx playwright test --list | sed -e '/^Total:/d')
+          test_list=$(npx playwright test --list)
           echo "Test list:"
           echo "$test_list"
-          test_files=$(echo "$test_list" | awk -F ' › ' '{print $2}')
+          test_files=$(echo "$test_list" | grep -o '\[chromium\] › .*' | sed 's/\[chromium\] › //')
           total_tests=$(echo "$test_files" | wc -l)
           tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
           start_index=$((tests_per_shard * (${{ matrix.shardIndex }} - 1) + 1))
@@ -49,7 +49,8 @@ jobs:
           echo "Tests per shard: $tests_per_shard"
           echo "Start index: $start_index"
           echo "End index: $end_index"
-          sed -n "${start_index},${end_index}p" <<< "$test_files"
+          echo "$test_files" | sed -n "${start_index},${end_index}p"
+
 
 
       
