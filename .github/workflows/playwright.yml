@@ -4,7 +4,7 @@ on:
     branches: [dev]
 jobs:
   playwright-tests:
-    timeout-minutes: 5
+    timeout-minutes: 2
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -14,10 +14,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Cache Node.js modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-      
+
       - name: Install dependencies
         run: npm ci
       
@@ -26,22 +34,21 @@ jobs:
       
       - name: Print tests in shard
         run: |
-          tests=$(npx playwright test --list)
-          total_tests=$(echo "$tests" | wc -l)
+          test_list=$(npx playwright test --list)
+          total_tests=$(echo "$test_list" | wc -l)
           tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
-          start_index=$((tests_per_shard * (${{ matrix.shardIndex }} - 1)))
+          start_index=$((tests_per_shard * (${{ matrix.shardIndex }} - 1) + 1))
           end_index=$((tests_per_shard * ${{ matrix.shardIndex }}))
           echo "Total tests: $total_tests"
           echo "Tests per shard: $tests_per_shard"
           echo "Start index: $start_index"
           echo "End index: $end_index"
-          sed -n "${start_index},${end_index}p" <<< "$tests" > executed_tests_shard_${{ matrix.shardIndex }}.txt
-          echo "$tests" | sed -n "${start_index},${end_index}p"
+          echo "$test_list" | sed -n "${start_index},${end_index}p" > executed_tests_shard_${{ matrix.shardIndex }}.txt
       
       - name: Run Playwright tests
         id: playwright_tests
         run: |
-          npx playwright test   --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
+          npx playwright test --workers=4  --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
       
       - name: Compare executed tests with all tests
         run: |
