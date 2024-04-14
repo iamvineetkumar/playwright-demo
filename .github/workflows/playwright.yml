@@ -1,7 +1,9 @@
 name: Playwright Tests
+
 on:
   push:
     branches: [dev]
+
 jobs:
   playwright-tests:
     timeout-minutes: 2
@@ -12,25 +14,16 @@ jobs:
         shardIndex: [1, 2, 3, 4]
         shardTotal: [4]
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Cache Node.js modules
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
         with:
-          node-version: 18
+          node-version: 14
 
       - name: Install dependencies
         run: npm ci
-      
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
 
       - name: Print tests in shard
         run: |
@@ -51,26 +44,26 @@ jobs:
           echo "End index: $end_index"
           echo "$test_files" | sed -n "${start_index},${end_index}p"
 
+      - name: Read test mapping
+        id: read_mapping
+        run: |
+          echo "::set-output name=mapping::$(cat test_mapping.yml)"
 
+      - name: Determine tests for shard
+        id: determine_tests
+        run: |
+          shard_index=${{ matrix.shardIndex }}
+          test_mapping=$(echo "${{ steps.read_mapping.outputs.mapping }}" | shyaml get-value shards.$((shard_index - 1)).tests)
+          echo "::set-output name=tests::${test_mapping}"
 
-      
       - name: Run Playwright tests
-        id: playwright_tests
         run: |
-          npx playwright test   --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
-      
-      - name: Compare executed tests with all tests
-        run: |
-          all_tests=$(cat executed_tests_shard_${{ matrix.shardIndex }}.txt)
-          executed_tests=$(cat executed_tests_shard_${{ matrix.shardIndex }}.txt)
-          echo "Executed tests:"
-          echo "$executed_tests"
-          echo "Not executed tests:"
-          diff <(echo "$all_tests") <(echo "$executed_tests") | grep -E "^>" | sed 's/>//g' | sed '/^\s*$/d'
-      
-      - name: Upload blob report to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v4
+          tests="${{ steps.determine_tests.outputs.tests }}"
+          npx playwright test "${tests[@]/#/--filter=}"
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v2
+        if: always()
         with:
-          name: blob-report-${{ matrix.shardIndex }}
-          path: blob-report
-          retention-days: 1
+          name: test-results
+          path: test-results/
