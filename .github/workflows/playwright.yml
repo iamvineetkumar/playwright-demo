@@ -13,29 +13,35 @@ jobs:
         shardTotal: [4]
     steps:
       - uses: actions/checkout@v4
+      
       - uses: actions/setup-node@v4
         with:
           node-version: 18
+      
       - name: Install dependencies
         run: npm ci
+      
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
-
+      
       - name: Print tests in shard
         run: |
-    tests=$(npx playwright test --list)
-    total_tests=$(echo "$tests" | wc -l)
-    tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
-    start_index=$((tests_per_shard * (${{ matrix.shardIndex }} - 1)))
-    end_index=$((tests_per_shard * ${{ matrix.shardIndex }}))
-    sed -n "${start_index},${end_index}p" <<< "$tests" > executed_tests_shard_${{ matrix.shardIndex }}.txt
-
-
+          tests=$(npx playwright test --list)
+          total_tests=$(echo "$tests" | wc -l)
+          tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
+          start_index=$((tests_per_shard * (${{ matrix.shardIndex }} - 1)))
+          end_index=$((tests_per_shard * ${{ matrix.shardIndex }}))
+          echo "Total tests: $total_tests"
+          echo "Tests per shard: $tests_per_shard"
+          echo "Start index: $start_index"
+          echo "End index: $end_index"
+          sed -n "${start_index},${end_index}p" <<< "$tests" > executed_tests_shard_${{ matrix.shardIndex }}.txt
+      
       - name: Run Playwright tests
         id: playwright_tests
         run: |
-          npx playwright test   --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
-
+          npx playwright test --workers=4  --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
+      
       - name: Compare executed tests with all tests
         if: ${{ failure() }}
         run: |
@@ -45,7 +51,7 @@ jobs:
           echo "$executed_tests"
           echo "Not executed tests:"
           diff <(echo "$all_tests") <(echo "$executed_tests") | grep -E "^>" | sed 's/>//g' | sed '/^\s*$/d'
-
+      
       - name: Upload blob report to GitHub Actions Artifacts
         if: ${{ failure() }}
         uses: actions/upload-artifact@v4
