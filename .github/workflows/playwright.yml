@@ -44,7 +44,6 @@ jobs:
           npx playwright test   --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
       
       - name: Compare executed tests with all tests
-        if: ${{ failure() }}
         run: |
           all_tests=$(cat executed_tests_shard_${{ matrix.shardIndex }}.txt)
           executed_tests=$(cat executed_tests_shard_${{ matrix.shardIndex }}.txt)
@@ -54,7 +53,6 @@ jobs:
           diff <(echo "$all_tests") <(echo "$executed_tests") | grep -E "^>" | sed 's/>//g' | sed '/^\s*$/d'
       
       - name: Upload blob report to GitHub Actions Artifacts
-        if: ${{ failure() }}
         uses: actions/upload-artifact@v4
         with:
           name: blob-report-${{ matrix.shardIndex }}
