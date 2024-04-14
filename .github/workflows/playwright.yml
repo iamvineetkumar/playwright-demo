@@ -28,6 +28,11 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+      - name: Install shyaml
+        run: |
+          pip install shyaml
+          echo "::add-path::$(python -m site --user-base)/bin"
+
       
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
