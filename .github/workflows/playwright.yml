@@ -31,7 +31,7 @@ jobs:
       
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
-            - name: Read test mapping
+      - name: Read test mapping
         id: read_mapping
         run: |
           echo "::set-output name=mapping::$(cat test_mapping.yml)"
