@@ -44,6 +44,8 @@ jobs:
           echo "Start index: $start_index"
           echo "End index: $end_index"
           echo "$test_list" | sed -n "${start_index},${end_index}p" > executed_tests_shard_${{ matrix.shardIndex }}.txt
+          echo "hello"
+          echo "$test_list"
       
       - name: Run Playwright tests
         id: playwright_tests
