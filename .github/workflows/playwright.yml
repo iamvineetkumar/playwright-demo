@@ -38,18 +38,18 @@ jobs:
       - name: Read test mapping
         id: read_mapping
         run: |
-          yaml_data=$(<.github/workflows/test_mapping.yml)
-          echo "::set-output name=mapping::${yaml_data}"
-
+          echo "::set-output name=mapping::$(cat .github/workflows/test_mapping.yml)"
+       
       - name: Determine tests for shard
         id: determine_tests
         run: |
           shard_index=${{ matrix.shardIndex }}
           yaml_data="${{ steps.read_mapping.outputs.mapping }}"
           echo "YAML data: $yaml_data"
-          test_mapping=$(echo "$yaml_data" | node -e "const yaml = require('js-yaml'); const data = yaml.load(process.stdin); const tests = data.shards[$((shard_index - 1))]?.tests; if (tests) { console.log('Tests for shard $((shard_index)):', tests.join(', ')); } else { console.log('Tests for shard $((shard_index)):', 'No tests found'); }")
-          echo "::set-output name=tests::${test_mapping}"
+          tests=$(node -e "const yaml = require('yaml'); const data = yaml.parse(process.argv[1]); if (data && data.shards && data.shards[$((shard_index - 1))]) { console.log('Tests for shard $((shard_index)):', data.shards[$((shard_index - 1))].tests.join(', ')); } else { console.log('Tests for shard $((shard_index)):', 'No tests found'); }" "$yaml_data")
+          echo "::set-output name=tests::${tests}"
 
+     
 
 
 
