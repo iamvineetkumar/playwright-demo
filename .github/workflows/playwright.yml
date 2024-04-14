@@ -33,7 +33,8 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-
+      - name: Install js-yaml
+        run: npm install js-yaml
       - name: Read test mapping
         id: read_mapping
         run: |
