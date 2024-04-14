@@ -32,7 +32,10 @@ jobs:
       
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
-        
+
+      - name: Install js-yaml
+        run: npm install js-yaml
+
       - name: Install js-yaml
         run: npm install js-yaml
 
@@ -46,8 +49,9 @@ jobs:
         id: determine_tests
         run: |
           shard_index=${{ matrix.shardIndex }}
-          test_mapping=$(echo "${{ steps.read_mapping.outputs.mapping }}" | node -e "const yaml = require('js-yaml'); const data = yaml.safeLoad(process.stdin); console.log(data.shards[$((shard_index - 1))].tests)")
+          test_mapping=$(echo "${{ steps.read_mapping.outputs.mapping }}" | node -e "const yaml = require('js-yaml'); const data = yaml.load(process.stdin); console.log(data.shards[$((shard_index - 1))].tests)")
           echo "::set-output name=tests::${test_mapping}"
+
 
       - name: Print tests in shard
         run: |
