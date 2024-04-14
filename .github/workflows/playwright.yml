@@ -47,8 +47,9 @@ jobs:
           shard_index=${{ matrix.shardIndex }}
           yaml_data="${{ steps.read_mapping.outputs.mapping }}"
           echo "YAML data: $yaml_data"
-          test_mapping=$(echo "$yaml_data" | node -e "const yaml = require('js-yaml'); const data = yaml.load(process.stdin); console.log('Parsed YAML data:', data); console.log('Shards:', data.shards); if (data.shards) { console.log('Tests for shard $((shard_index - 1)):', data.shards[$((shard_index - 1))]?.tests || 'N/A'); } else { console.log('Shards array is undefined or empty'); }")
+          test_mapping=$(echo "$yaml_data" | node -e "const yaml = require('js-yaml'); const data = yaml.load(process.stdin); const tests = data.shards[$((shard_index - 1))]?.tests; if (tests) { console.log('Tests for shard $((shard_index)):', tests.join(', ')); } else { console.log('Tests for shard $((shard_index)):', 'No tests found'); }")
           echo "::set-output name=tests::${test_mapping}"
+
 
 
 
