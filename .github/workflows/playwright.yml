@@ -42,14 +42,15 @@ jobs:
         run: |
           echo "::set-output name=mapping::$(cat .github/workflows/test_mapping.yml)"
 
-      - name: Determine tests for shard
-        id: determine_tests
-        run: |
-          shard_index=${{ matrix.shardIndex }}
-          yaml_data="${{ steps.read_mapping.outputs.mapping }}"
-          echo "YAML data: $yaml_data"
-          tests=$(node -e "const yaml = require('yaml'); const data = yaml.parse(process.argv[1]); if (data && data.shards && data.shards[$((shard_index - 1))]) { console.log('Tests for shard $((shard_index)):', data.shards[$((shard_index - 1))].tests.join(', ')); } else { console.log('Tests for shard $((shard_index)):', 'No tests found'); }" "$yaml_data")
-          echo "::set-output name=tests::${tests}"
+        - name: Determine tests for shard
+          id: determine_tests
+          run: |
+            shard_index=${{ matrix.shardIndex }}
+            yaml_data="${{ steps.read_mapping.outputs.mapping }}"
+            echo "YAML data: $yaml_data"
+            tests=$(node -e "const yaml = require('yaml'); const data = yaml.parse(process.argv[1]); console.log('Parsed data:', data); if (data && data.shards && data.shards[$((shard_index - 1))]) { console.log('Tests for shard $((shard_index)):', data.shards[$((shard_index - 1))].tests.join(', ')); } else { console.log('Tests for shard $((shard_index)):', 'No tests found'); }" "$yaml_data")
+            echo "::set-output name=tests::${tests}"
+
 
 
     
