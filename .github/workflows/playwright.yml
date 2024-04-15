@@ -32,14 +32,16 @@ jobs:
       
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
+  
 
-      - name: Install js-yaml
-        run: npm install js-yaml
+      - name: Install yaml module
+        run: npm install yaml
+
       - name: Read test mapping
         id: read_mapping
         run: |
           echo "::set-output name=mapping::$(cat .github/workflows/test_mapping.yml)"
-       
+
       - name: Determine tests for shard
         id: determine_tests
         run: |
@@ -49,11 +51,8 @@ jobs:
           tests=$(node -e "const yaml = require('yaml'); const data = yaml.parse(process.argv[1]); if (data && data.shards && data.shards[$((shard_index - 1))]) { console.log('Tests for shard $((shard_index)):', data.shards[$((shard_index - 1))].tests.join(', ')); } else { console.log('Tests for shard $((shard_index)):', 'No tests found'); }" "$yaml_data")
           echo "::set-output name=tests::${tests}"
 
-     
 
-
-
-
+    
 
 
       - name: Print tests in shard
