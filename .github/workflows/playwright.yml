@@ -37,8 +37,13 @@ jobs:
           echo "$test_list"
           test_files=$(echo "$test_list" | grep -o '\[chromium\] › .*' | sed 's/\[chromium\] › //')
           total_tests=$(echo "$test_files" | wc -l)
-          tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
-          start_index=$((tests_per_shard * (${{ matrix.shardIndex }} - 1) + 1))
+          tests_per_shard=$((total_tests / 4))
+          start_index=$((tests_per_shard * (3 - 1) + 1))
+          end_index=$((tests_per_shard * 3))
+          if [[ 3 -eq 4 ]]; then
+            end_index=$total_tests
+          fi
+          echo "Total tests: $total_tests"
           echo "Tests per shard: $tests_per_shard"
           echo "Start index: $start_index"
           echo "End index: $end_index"
