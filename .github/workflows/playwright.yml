@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shardIndex: [1, 2, 3, 4]
+        shardIndex: [0, 1, 2, 3] # Adjust shard indices to start from 0
         shardTotal: [4]
     steps:
       - uses: actions/checkout@v4
@@ -61,17 +61,18 @@ jobs:
           total_tests=$(echo "$test_files" | wc -l)
           tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
           extra_tests=$((total_tests % ${{ matrix.shardTotal }}))
-          shard_tests=$(echo "$shard_config" | shyaml get-value shards.${{ matrix.shardIndex }}.tests)
+          shard_index=$(({{ matrix.shardIndex }} + 1)) # Adjust shard index to start from 1
+          shard_tests=$(echo "$shard_config" | shyaml get-value shards.${shard_index}.tests)
           echo "Total tests: $total_tests"
           echo "Tests per shard: $tests_per_shard"
           echo "Shard tests: $shard_tests"
-
 
       - name: Run Playwright tests
         id: playwright_tests
         run: |
           shard_config="${{ steps.load_shards.outputs.shardConfig }}"
-          shard_tests=$(echo "$shard_config" | shyaml get-value shards.${{ matrix.shardIndex }}.tests)
+          shard_index=$(({{ matrix.shardIndex }} + 1)) # Adjust shard index to start from 1
+          shard_tests=$(echo "$shard_config" | shyaml get-value shards.${shard_index}.tests)
           for test in $shard_tests; do
             npx playwright test $test
           done
