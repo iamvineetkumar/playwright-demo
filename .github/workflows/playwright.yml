@@ -39,11 +39,6 @@ jobs:
           total_tests=$(echo "$test_files" | wc -l)
           tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
           start_index=$((tests_per_shard * (${{ matrix.shardIndex }} - 1) + 1))
-          end_index=$((tests_per_shard * ${{ matrix.shardIndex }}))
-          if [[ ${{ matrix.shardIndex }} -eq ${{ matrix.shardTotal }} ]]; then
-            end_index=$total_tests
-          fi
-          echo "Total tests: $total_tests"
           echo "Tests per shard: $tests_per_shard"
           echo "Start index: $start_index"
           echo "End index: $end_index"
