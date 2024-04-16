@@ -42,7 +42,7 @@ jobs:
 
       - name: Print tests in shard
         run: |
-          shard_config=$(< shards.yaml)
+          shard_config=$(< .github/workflows/test_mapping.yml)
           shard_index=${{ matrix.shardIndex }}
           shard_tests=$(echo "$shard_config" | shyaml get-value "shards.$shard_index.tests[*]")
           echo "Shard tests for shard $shard_index:"
