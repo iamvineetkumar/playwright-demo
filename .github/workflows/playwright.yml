@@ -50,13 +50,10 @@ jobs:
           echo "$test_list"
           test_files=$(echo "$test_list" | grep -oE '\[(chromium)\] › .*' | sed 's/\[(chromium)\] › //')
           total_tests=$(echo "$test_files" | wc -l)
-          tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
-          extra_tests=$((total_tests % ${{ matrix.shardTotal }}))
-          shard_index=${{ matrix.shardIndex }}
-          shard_tests=$(echo "$shard_config" | yq eval ".shards[$shard_index].tests | .[]" -)
           echo "Total tests: $total_tests"
+          tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
           echo "Tests per shard: $tests_per_shard"
-          echo "Shard tests: $shard_tests"
+
 
       - name: Run Playwright tests
         id: playwright_tests
