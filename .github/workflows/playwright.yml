@@ -53,12 +53,17 @@ jobs:
           tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
           echo "Tests per shard: $tests_per_shard"
 
-
-
       - name: Run Playwright tests
         id: playwright_tests
         run: |
-          npx playwright test tests/e2e/api/test-1.spec.ts
+          shard_config="${{ steps.load_shards.outputs.shardConfig }}"
+          shard_index=${{ matrix.shardIndex }}
+          shard_tests=$(echo "$shard_config" | yq eval ".shards[$shard_index].tests | .[]" -)
+          for test in $shard_tests; do
+            npx playwright test $test
+          done
+
+
 
 
       - name: Upload blob report to GitHub Actions Artifacts
