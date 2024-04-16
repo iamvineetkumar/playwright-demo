@@ -31,6 +31,12 @@ jobs:
         with:
           node-version: 18
 
+      - name: Install shyaml
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3-pip -y
+          sudo pip3 install shyaml
+
       - name: Install dependencies
         run: npm ci
 
@@ -40,7 +46,7 @@ jobs:
       - name: Load shard configuration
         id: load_shards
         run: |
-          shard_config=$(cat .github/workflows/test_mapping.yml)
+          shard_config=$(cat shards.yaml)
           echo "::set-output name=shardConfig::$shard_config"
 
       - name: Print tests in shard
