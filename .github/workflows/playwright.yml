@@ -1,7 +1,9 @@
 name: Playwright Tests
+
 on:
   push:
     branches: [dev]
+
 jobs:
   playwright-tests:
     timeout-minutes: 4
@@ -13,7 +15,7 @@ jobs:
         shardTotal: [4]
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Cache Node.js modules
         uses: actions/cache@v2
         with:
@@ -21,37 +23,40 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
+
       - name: Install js-yaml
         run: npm install js-yaml
 
       - uses: actions/setup-node@v4
         with:
           node-version: 18
+
       - name: Install dependencies
         run: npm ci
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
       - name: Print tests in shard
         run: |
-              test_list=$(npx playwright test --list)
-              echo "Test list:"
-              echo "$test_list"
-              test_files=$(echo "$test_list" | grep -oE '\[(rbac|api|setup|e2e|manager1RbacApi|user1RbacApi|reportee1RbacApi)\] › .*' | sed 's/\[(rbac|api|setup|e2e|manager1RbacApi|user1RbacApi|reportee1RbacApi)\] › //')
-              total_tests=$(echo "$test_files" | wc -l)
-              tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
-              extra_tests=$((total_tests % ${{ matrix.shardTotal }}))
-              start_index=$(( (tests_per_shard * (${{ matrix.shardIndex }} - 1)) + min(${{ matrix.shardIndex }}, $extra_tests) + 1 ))
-              end_index=$(( start_index + tests_per_shard - 1 ))
-              if [[ ${{ matrix.shardIndex }} -le $extra_tests ]]; then
-                  end_index=$(( end_index + 1 ))
-              fi
-              echo "Total tests: $total_tests"
-              echo "Tests per shard: $tests_per_shard"
-              echo "Start index: $start_index"
-              echo "End index: $end_index"
-              echo "$test_files" | sed -n "${start_index},${end_index}p"
-      
+          test_list=$(npx playwright test --list)
+          echo "Test list:"
+          echo "$test_list"
+          test_files=$(echo "$test_list" | grep -oE '\[(rbac|api|setup|e2e|manager1RbacApi|user1RbacApi|reportee1RbacApi)\] › .*' | sed 's/\[(rbac|api|setup|e2e|manager1RbacApi|user1RbacApi|reportee1RbacApi)\] › //')
+          total_tests=$(echo "$test_files" | wc -l)
+          tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
+          extra_tests=$((total_tests % ${{ matrix.shardTotal }}))
+          start_index=$(( (tests_per_shard * (${{ matrix.shardIndex }} - 1)) + min(${{ matrix.shardIndex }}, $extra_tests) + 1 ))
+          end_index=$(( start_index + tests_per_shard - 1 ))
+          if [[ ${{ matrix.shardIndex }} -le $extra_tests ]]; then
+              end_index=$(( end_index + 1 ))
+          fi
+          echo "Total tests: $total_tests"
+          echo "Tests per shard: $tests_per_shard"
+          echo "Start index: $start_index"
+          echo "End index: $end_index"
+          echo "$test_files" | sed -n "${start_index},${end_index}p"
+
       - name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
         with:
