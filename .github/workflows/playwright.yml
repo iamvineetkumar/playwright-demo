@@ -36,10 +36,11 @@ jobs:
           echo "Test list:"
           echo "$test_list"
           total_tests=$(echo "$test_list" | grep -cE '\[(e2e|rbac)\] ›')
-          tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
+          shard_total=4  # Change this value according to your shard configuration
+          tests_per_shard=$((total_tests / shard_total))
           start_index=$((tests_per_shard * (${{ matrix.shardIndex }} - 1) + 1))
           end_index=$((tests_per_shard * ${{ matrix.shardIndex }}))
-          if [[ ${{ matrix.shardIndex }} -eq ${{ matrix.shardTotal }} ]]; then
+          if [[ ${{ matrix.shardIndex }} -eq $shard_total ]]; then
             end_index=$total_tests
           fi
           echo "Total tests: $total_tests"
@@ -47,6 +48,7 @@ jobs:
           echo "Start index: $start_index"
           echo "End index: $end_index"
           echo "$test_list" | grep -E '\[(e2e|rbac)\] ›' | sed -n "${start_index},${end_index}p"
+
 
 
 
