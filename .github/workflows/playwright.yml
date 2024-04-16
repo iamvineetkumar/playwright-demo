@@ -1,4 +1,4 @@
-name: Playwright Tests
+=name: Playwright Tests
 
 on:
   push:
@@ -37,8 +37,15 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
+      - name: Load shard configuration
+        id: load_shards
+        run: |
+          shard_config=$(cat .github/workflows/test_mapping.yml)
+          echo "::set-output name=shardConfig::$shard_config"
+
       - name: Print tests in shard
         run: |
+          shard_config="${{ steps.load_shards.outputs.shardConfig }}"
           test_list=$(npx playwright test --list)
           echo "Test list:"
           echo "$test_list"
@@ -46,24 +53,19 @@ jobs:
           total_tests=$(echo "$test_files" | wc -l)
           tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
           extra_tests=$((total_tests % ${{ matrix.shardTotal }}))
-          if [[ ${{ matrix.shardIndex }} -le $extra_tests ]]; then
-              start_index=$(( (${{ matrix.shardIndex }} - 1) * (tests_per_shard + 1) + 1 ))
-              end_index=$(( start_index + tests_per_shard ))
-          else
-              start_index=$(( (${{ matrix.shardIndex }} - 1) * tests_per_shard + extra_tests + 1 ))
-              end_index=$(( start_index + tests_per_shard - 1 ))
-          fi
+          shard_tests=$(echo "$shard_config" | shyaml get-value shards.${{ matrix.shardIndex }}.tests)
           echo "Total tests: $total_tests"
           echo "Tests per shard: $tests_per_shard"
-          echo "Start index: $start_index"
-          echo "End index: $end_index"
-          echo "$test_files" | sed -n "${start_index},${end_index}p"
-
+          echo "Shard tests: $shard_tests"
 
       - name: Run Playwright tests
         id: playwright_tests
         run: |
-          npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
+          shard_config="${{ steps.load_shards.outputs.shardConfig }}"
+          shard_tests=$(echo "$shard_config" | shyaml get-value shards.${{ matrix.shardIndex }}.tests)
+          for test in $shard_tests; do
+            npx playwright test $test
+          done
 
       - name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
