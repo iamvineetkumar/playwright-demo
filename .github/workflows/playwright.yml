@@ -64,6 +64,8 @@ jobs:
           # Iterate over each test file and execute it
           for test_file in $shard_tests; do
             echo "Running test file: $test_file"
+            echo "npx playwright test $test_file --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
+"
             npx playwright test $test_file --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
           done
 
