@@ -21,6 +21,8 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
+      - name: Install js-yaml
+        run: npm install js-yaml
 
       - uses: actions/setup-node@v4
         with:
@@ -40,8 +42,10 @@ jobs:
         run: |
           shard_index=${{ matrix.shardIndex }}
           yaml_data="${{ steps.read_mapping.outputs.mapping }}"
-          tests=$(echo "$yaml_data" | shyaml get-value shards.$((shard_index - 1)).tests)
+          echo "YAML data: $yaml_data"
+          tests=$(echo "$yaml_data" | node -e "const yaml = require('js-yaml'); const data = yaml.load(process.stdin); const tests = data.shards[$((shard_index - 1))]?.tests; if (tests) { console.log(tests.join(', ')); } else { console.log('No tests found'); }")
           echo "::set-output name=tests::${tests}"
+
       - name: Run Playwright tests
         id: playwright_tests
         run: |
