@@ -58,12 +58,7 @@ jobs:
       - name: Run Playwright tests
         id: playwright_tests
         run: |
-          shard_config="${{ steps.load_shards.outputs.shardConfig }}"
-          shard_index=${{ matrix.shardIndex }}
-          shard_tests=$(echo "$shard_config" | yq eval ".shards[$shard_index].tests | .[]" -)
-          for test in $shard_tests; do
-            npx playwright test $test
-          done
+          npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
 
 
 
