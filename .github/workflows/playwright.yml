@@ -32,25 +32,25 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Read test mapping
-        id: read_mapping
+      - name: Print tests in shard
         run: |
-          echo "::set-output name=mapping::$(cat .github/workflows/test_mapping.yml)"s
-
-      - name: Determine tests for shard
-        id: determine_tests
-        run: |
-          shard_index=${{ matrix.shardIndex }}
-          yaml_data="${{ steps.read_mapping.outputs.mapping }}"
-          echo "YAML data: $yaml_data"  # Add this line for debugging
-          test_mapping=$(echo "$yaml_data" | node -e "const yaml = require('js-yaml'); const data = yaml.load(process.stdin); console.log('Parsed YAML data:', data); console.log('Shards:', data.shards); if (data.shards) { console.log('Tests for shard $((shard_index)):', data.shards[$((shard_index - 1))]?.tests.join(', ') || '
-
-
-      - name: Run Playwright tests
-        id: playwright_tests
-        run: |
-          tests="${{ steps.determine_tests.outputs.tests }}"
-          npx playwright test $tests
+              test_list=$(npx playwright test --list)
+              echo "Test list:"
+              echo "$test_list"
+              test_files=$(echo "$test_list" | grep -oE '\[(rbac|api|setup|e2e|manager1RbacApi|user1RbacApi|reportee1RbacApi)\] › .*' | sed 's/\[(rbac|api|setup|e2e|manager1RbacApi|user1RbacApi|reportee1RbacApi)\] › //')
+              total_tests=$(echo "$test_files" | wc -l)
+              tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
+              extra_tests=$((total_tests % ${{ matrix.shardTotal }}))
+              start_index=$(( (tests_per_shard * (${{ matrix.shardIndex }} - 1)) + min(${{ matrix.shardIndex }}, $extra_tests) + 1 ))
+              end_index=$(( start_index + tests_per_shard - 1 ))
+              if [[ ${{ matrix.shardIndex }} -le $extra_tests ]]; then
+                  end_index=$(( end_index + 1 ))
+              fi
+              echo "Total tests: $total_tests"
+              echo "Tests per shard: $tests_per_shard"
+              echo "Start index: $start_index"
+              echo "End index: $end_index"
+              echo "$test_files" | sed -n "${start_index},${end_index}p"
       
       - name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
