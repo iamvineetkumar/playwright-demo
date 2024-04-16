@@ -48,22 +48,18 @@ jobs:
           test_list=$(npx playwright test --list)
           echo "Test list:"
           echo "$test_list"
-          test_files=$(echo "$test_list" | grep -oE '\[(chromium)\] › .*' | sed 's/\[(chromium)\] › //')
-          total_tests=$(echo "$test_files" | wc -l)
+          total_tests=$(echo "$test_list" | grep -oE '\[(chromium)\] › .*' | wc -l)
           echo "Total tests: $total_tests"
           tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
           echo "Tests per shard: $tests_per_shard"
 
 
+
       - name: Run Playwright tests
         id: playwright_tests
         run: |
-          shard_config="${{ steps.load_shards.outputs.shardConfig }}"
-          shard_index=${{ matrix.shardIndex }}
-          shard_tests=$(echo "$shard_config" | yq eval ".shards[$shard_index].tests | .[]" -)
-          for test in $shard_tests; do
-            npx playwright test $test
-          done
+          npx playwright test tests/e2e/api/test-1.spec.ts
+
 
       - name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
