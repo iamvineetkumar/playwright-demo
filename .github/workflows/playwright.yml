@@ -53,11 +53,11 @@ jobs:
           echo "Start index: $start_index"
           echo "End index: $end_index"
           echo "$test_files" | sed -n "${start_index},${end_index}p"
-      - name: Run Playwright tests
-              id: playwright_tests
-              run: |
-                npx playwright test   --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
 
+      - name: Run Playwright tests
+        id: playwright_tests
+        run: |
+          npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
 
       - name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
