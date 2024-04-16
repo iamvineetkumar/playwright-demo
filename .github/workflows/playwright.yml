@@ -37,12 +37,6 @@ jobs:
           sudo apt-get install python3-pip -y
           sudo pip3 install shyaml
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-
       - name: Load shard configuration
         id: load_shards
         run: |
@@ -70,7 +64,8 @@ jobs:
         id: playwright_tests
         run: |
           shard_config="${{ steps.load_shards.outputs.shardConfig }}"
-          shard_tests=$(echo "$shard_config" | shyaml get-value shards.${{ matrix.shardIndex }}.tests)
+          shard_index=${{ matrix.shardIndex }}
+          shard_tests=$(echo "$shard_config" | shyaml get-value ${shard_index}.tests)
           for test in $shard_tests; do
             npx playwright test $test
           done
