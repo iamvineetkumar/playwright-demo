@@ -46,7 +46,7 @@ jobs:
       - name: Load shard configuration
         id: load_shards
         run: |
-          shard_config=$(cat shards.yaml)
+          shard_config=$(cat .github/workflows/test_mapping.yml)
           echo "::set-output name=shardConfig::$shard_config"
 
       - name: Print tests in shard
