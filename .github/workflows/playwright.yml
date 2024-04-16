@@ -38,7 +38,6 @@ jobs:
           sudo wget https://github.com/mikefarah/yq/releases/download/v4.11.1/yq_linux_amd64 -O /usr/bin/yq
           sudo chmod +x /usr/bin/yq
 
-
       - name: Load shard configuration
         id: load_shards
         run: |
@@ -53,12 +52,23 @@ jobs:
           echo "Shard tests for shard $shard_index:"
           echo "$shard_tests"
 
-
-
       - name: Run Playwright tests
         id: playwright_tests
         run: |
-          npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
+          shard_config=$(< .github/workflows/test_mapping.yml)
+          shard_index=${{ matrix.shardIndex }}
+          shard_tests=$(echo "$shard_config" | yq eval ".shards[$shard_index].tests | .[]" -)
+          echo "Shard tests for shard $shard_index:"
+          echo "$shard_tests"
+          
+          # Iterate over each test file and execute it
+          for test_file in $shard_tests; do
+            echo "Running test file: $test_file"
+            npx playwright test $test_file --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
+          done
+
+
+    
 
 
 
