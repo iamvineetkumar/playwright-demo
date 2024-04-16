@@ -1,13 +1,6 @@
 shards:
-  - tests:
-      - test-1.spec.ts
-      - test-2.spec.ts
-      - test-3.spec.ts
-  - tests:
-      - test-4.spec.ts
-      - test-5.spec.ts
-  - tests:
-      - test-6.spec.ts
-  - tests:
-      - test-7.spec.ts
-      - test-8.spec.ts
+  - tests: [tests/e2e/api/test-1.spec.ts,tests/e2e/api/test-8.spec.ts]
+  - tests: [tests/e2e/setup/test-7.spec.ts, tests/e2e/user1/test-2.spec.ts]
+  - tests: [tests/e2e/user1/test-6.spec.ts]
+  - tests: [tests/rbac/test-3.spec.ts, tests/rbac/test-4.spec.ts]
+
