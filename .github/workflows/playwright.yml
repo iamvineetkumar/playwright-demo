@@ -60,9 +60,13 @@ jobs:
           shard_config=$(< .github/workflows/test_mapping.yml)
           shard_index=${{ matrix.shardIndex }}
           shard_tests=$(echo "$shard_config" | yq eval ".shards[$shard_index].tests | .[]" -)
+          echo "11111"
           echo "Shard tests for shard $shard_index:"
+          echo "22222"
           echo "$shard_tests"
+          echo "333333"
           echo "npx playwright test $shard_tests --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt"
+          echo "5555"
           npx playwright test $shard_tests --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
 
 
