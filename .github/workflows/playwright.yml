@@ -31,16 +31,13 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install shyaml
-        run: |
-          sudo apt-get update
-          sudo apt-get install python3-pip -y
-          sudo pip3 install shyaml
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
 
       - name: Load shard configuration
         id: load_shards
         run: |
-          shard_config=$(cat .github/workflows/test_mapping.yml)
+          shard_config=$(< .github/workflows/test_mapping.yml)
           echo "::set-output name=shardConfig::$shard_config"
 
       - name: Print tests in shard
@@ -55,7 +52,8 @@ jobs:
           total_tests=$(echo "$test_files" | wc -l)
           tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
           extra_tests=$((total_tests % ${{ matrix.shardTotal }}))
-          shard_tests=$(echo "$shard_config" | shyaml get-value shards.${{ matrix.shardIndex }}.tests)
+          shard_index=${{ matrix.shardIndex }}
+          shard_tests=$(echo "$shard_config" | yq eval ".shards[$shard_index].tests | .[]" -)
           echo "Total tests: $total_tests"
           echo "Tests per shard: $tests_per_shard"
           echo "Shard tests: $shard_tests"
@@ -65,7 +63,7 @@ jobs:
         run: |
           shard_config="${{ steps.load_shards.outputs.shardConfig }}"
           shard_index=${{ matrix.shardIndex }}
-          shard_tests=$(echo "$shard_config" | shyaml get-value ${shard_index}.tests)
+          shard_tests=$(echo "$shard_config" | yq eval ".shards[$shard_index].tests | .[]" -)
           for test in $shard_tests; do
             npx playwright test $test
           done
