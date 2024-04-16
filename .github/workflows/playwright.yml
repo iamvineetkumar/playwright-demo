@@ -32,7 +32,7 @@ jobs:
 
       - name: Print tests in shard
         run: |
-          test_list=$(npx playwright test --list)
+          test_list=$(npx playwright test --list | grep '\[e2e\|rbac\] ›')
           echo "Test list:"
           echo "$test_list"
           total_tests=$(echo "$test_list" | grep -cE '\[(e2e|rbac)\] ›')
