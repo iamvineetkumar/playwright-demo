@@ -36,7 +36,7 @@ jobs:
           echo "Test list:"
           echo "$test_list"
           test_list=$(npx playwright test --list)
-          test_files=$(echo "$test_list" | grep -E '\[(api|setup|rbac|user1)\] › .*' | sed -E 's/\[(api|setup|rbac|user1)\] › //')
+          test_files=$(echo "$test_list" | grep -o '\[e2e\|rbac\] › .*' | sed 's/\[e2e\|rbac\] › //')
           total_tests=$(echo "$test_files" | wc -l)
           tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
           start_index=$((tests_per_shard * (${{ matrix.shardIndex }} - 1) + 1))
