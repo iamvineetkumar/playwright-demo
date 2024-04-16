@@ -32,22 +32,24 @@ jobs:
 
       - name: Print tests in shard
         run: |
-          test_list=$(npx playwright test --list | grep '\[e2e\|rbac\] ›')
+          test_list=$(npx playwright test --list)
           echo "Test list:"
           echo "$test_list"
-          total_tests=$(echo "$test_list" | grep -cE '\[(e2e|rbac)\] ›')
-          shard_total=4  # Change this value according to your shard configuration
-          tests_per_shard=$((total_tests / shard_total))
+          test_files=$(echo "$test_list" | grep -oE '\[(rbac|api|setup|user1)\] › .*' | sed 's/\[(rbac|api|setup|user1)\] › //')
+          total_tests=$(echo "$test_files" | wc -l)
+          tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
           start_index=$((tests_per_shard * (${{ matrix.shardIndex }} - 1) + 1))
           end_index=$((tests_per_shard * ${{ matrix.shardIndex }}))
-          if [[ ${{ matrix.shardIndex }} -eq $shard_total ]]; then
+          if [[ ${{ matrix.shardIndex }} -eq ${{ matrix.shardTotal }} ]]; then
             end_index=$total_tests
           fi
           echo "Total tests: $total_tests"
           echo "Tests per shard: $tests_per_shard"
           echo "Start index: $start_index"
           echo "End index: $end_index"
-          echo "$test_list" | grep -E '\[(e2e|rbac)\] ›' | sed -n "${start_index},${end_index}p"
+          echo "$test_files" | sed -n "${start_index},${end_index}p"
+
+
 
 
 
