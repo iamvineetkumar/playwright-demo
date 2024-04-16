@@ -42,20 +42,18 @@ jobs:
           test_list=$(npx playwright test --list)
           echo "Test list:"
           echo "$test_list"
-          test_files=$(echo "$test_list" | grep -oE '\[(rbac|api|setup|e2e|manager1RbacApi|user1RbacApi|reportee1RbacApi)\] › .*' | sed 's/\[(rbac|api|setup|e2e|manager1RbacApi|user1RbacApi|reportee1RbacApi)\] › //')
+          test_files=$(echo "$test_list" | grep -oE '\[(chromium)\] › .*' | sed 's/\[(chromium)\] › //')
           total_tests=$(echo "$test_files" | wc -l)
           tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
           extra_tests=$((total_tests % ${{ matrix.shardTotal }}))
-          start_index=$(( (tests_per_shard * (${{ matrix.shardIndex }} - 1)) + min(${{ matrix.shardIndex }}, $extra_tests) + 1 ))
-          end_index=$(( start_index + tests_per_shard - 1 ))
-          if [[ ${{ matrix.shardIndex }} -le $extra_tests ]]; then
-              end_index=$(( end_index + 1 ))
-          fi
+          start_index=$(( (tests_per_shard * (${{ matrix.shardIndex }} - 1)) + ((${{ matrix.shardIndex }} <= $extra_tests)) ))
+          end_index=$(( start_index + tests_per_shard - 1 + ((${{ matrix.shardIndex }} <= $extra_tests)) ))
           echo "Total tests: $total_tests"
           echo "Tests per shard: $tests_per_shard"
           echo "Start index: $start_index"
           echo "End index: $end_index"
           echo "$test_files" | sed -n "${start_index},${end_index}p"
+
 
       - name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
