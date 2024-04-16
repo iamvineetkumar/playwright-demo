@@ -42,16 +42,25 @@ jobs:
 
       - name: Print tests in shard
         run: |
-          shard_config="${{ steps.load_shards.outputs.shardConfig }}"
-          echo "Shard configuration:"
-          echo "$shard_config"
           test_list=$(npx playwright test --list)
           echo "Test list:"
           echo "$test_list"
-          total_tests=$(echo "$test_list" | grep -oE '\[(chromium)\] › .*' | wc -l)
-          echo "Total tests: $total_tests"
+          test_files=$(echo "$test_list" | grep -oE '\[(chromium)\] › .*' | sed 's/\[(chromium)\] › //')
+          total_tests=$(echo "$test_files" | wc -l)
           tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
+          extra_tests=$((total_tests % ${{ matrix.shardTotal }}))
+          if [[ ${{ matrix.shardIndex }} -le $extra_tests ]]; then
+              start_index=$(( (${{ matrix.shardIndex }} - 1) * (tests_per_shard + 1) + 1 ))
+              end_index=$(( start_index + tests_per_shard ))
+          else
+              start_index=$(( (${{ matrix.shardIndex }} - 1) * tests_per_shard + extra_tests + 1 ))
+              end_index=$(( start_index + tests_per_shard - 1 ))
+          fi
+          echo "Total tests: $total_tests"
           echo "Tests per shard: $tests_per_shard"
+          echo "Start index: $start_index"
+          echo "End index: $end_index"
+          echo "$test_files" | sed -n "${start_index},${end_index}p"
 
       - name: Run Playwright tests
         id: playwright_tests
