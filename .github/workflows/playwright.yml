@@ -33,6 +33,9 @@ jobs:
       - name: Print tests in shard
         run: |
           test_list=$(npx playwright test --list)
+          echo "Test list:"
+          echo "$test_list"
+          test_list=$(npx playwright test --list)
           test_files=$(echo "$test_list" | grep -o '\[chromium\] › .*' | sed 's/\[chromium\] › //')
           total_tests=$(echo "$test_files" | wc -l)
           tests_per_shard=$((total_tests / ${{ matrix.shardTotal }}))
