@@ -53,6 +53,7 @@ jobs:
             echo "Running test file: $test_file"
             echo "Node.js version: $(node --version)"
             echo "Playwright version: $(npx playwright --version)"
+            echo "npx playwright test  $test_file --workers=2 --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt"
             npx playwright test  $test_file --workers=2 --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
           done
 
