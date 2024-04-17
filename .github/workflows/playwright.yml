@@ -40,6 +40,48 @@ jobs:
           yaml_content=$(<.github/workflows/test_mapping.yml)
           echo "::set-output name=yamlContent::$yaml_content"
 
+name: Playwright Tests
+
+on:
+  push:
+    branches: [dev]
+
+jobs:
+  playwright-tests:
+    timeout-minutes: 4
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1, 2, 3, 4] # Shard indices remain 1, 2, 3, 4
+        shardTotal: [4]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install js-yaml
+        run: npm install js-yaml
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 14 # or the version you need
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Load and Parse YAML File
+        id: load_yaml
+        run: |
+          yaml_content=$(<.github/workflows/test_mapping.yml)
+          echo "::set-output name=yamlContent::$yaml_content"
+
       - name: Run Playwright tests
         id: playwright_tests
         run: |
@@ -56,6 +98,15 @@ jobs:
             echo "Playwright version: $(npx playwright --version)"
             npx playwright test $test_file --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
           done
+        
+
+      - name: Upload blob report to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: blob-report-${{ matrix.shardIndex }}
+          path: blob-report
+          retention-days: 1
+
         
 
       - name: Upload blob report to GitHub Actions Artifacts
