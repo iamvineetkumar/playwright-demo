@@ -39,21 +39,12 @@ jobs:
           yaml_content=$(<.github/workflows/test_mapping.yml)
           echo "::set-output name=yamlContent::$yaml_content"
 
-      - name: Load and process shard configuration
-        id: load_shards
-        run: |
-          shard_config=$(< .github/workflows/test_mapping.yml)
-          shard_index=${{ matrix.shardIndex }}
-          shard_tests=$(echo "$shard_config" | sed -n "s/^\s*tests:\s*//p" | sed -n "${shard_index}p" | awk '{$1=$1};1')
-          echo "::set-output name=shardConfig::$shard_tests"
-
-  
-    
       - name: Run Playwright tests
         id: playwright_tests
         run: |
          shard_tests=${{ steps.load_yaml.outputs.shardConfig }}
          echo "Shard tests for shard ${{ matrix.shardIndex }}:"
+         echo "one"
          echo "$shard_tests"
          npx playwright test $shard_tests --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
  
