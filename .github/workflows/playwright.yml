@@ -33,10 +33,8 @@ jobs:
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
-      - name: Install yq
-        run: |
-           wget https://github.com/mikefarah/yq/releases/download/v4.11.1/yq_linux_amd64 -O /usr/bin/yq
-           chmod +x /usr/bin/yq
+      - name: Install jq
+        run: sudo apt-get install jq
 
       - name: Load shard configuration
         id: load_shards
@@ -48,7 +46,7 @@ jobs:
         run: |
           shard_config=$(< .github/workflows/test_mapping.yml)
           shard_index=${{ matrix.shardIndex }}
-          shard_tests=$(echo "$shard_config" | yq eval ".shards[$shard_index].tests | .[]" -)
+          shard_tests=$(echo "$shard_config" | jq -r ".shards[$shard_index].tests[]")
           echo "Shard tests for shard $shard_index:"
           echo "$shard_tests"
       - name: Grant Read-Write Access to test_mapping.yml
