@@ -34,7 +34,7 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-           - name: Load YAML content
+      - name: Load YAML content
         id: load_yaml
         run: |
           yaml_content=$(cat .github/workflows/test_mapping.yml)
