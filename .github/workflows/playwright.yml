@@ -35,7 +35,6 @@ jobs:
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
-
       - name: Install yq
         run: |
           sudo add-apt-repository ppa:rmescandon/yq -y
@@ -47,7 +46,7 @@ jobs:
         run: |
           shard_index=${{ matrix.shardIndex }}
           yaml_content=$(< .github/workflows/test_mapping.yml)
-          shard_tests=$(echo "$yaml_content" | yq -r ".shards[$shard_index].tests[]")
+          shard_tests=$(echo "$yaml_content" | yq ".shards[$shard_index].tests" | tr -d '[]"' | tr ',' '\n')
           echo "Extracted tests:"
           echo "$shard_tests"
           echo "::set-output name=shardTests::$shard_tests"
@@ -56,6 +55,7 @@ jobs:
         run: |
           echo "Parsed YAML output:"
           echo "${{ steps.load_and_parse_yaml.outputs.shardTests }}"
+
 
 
       - name: Run Playwright tests
