@@ -41,13 +41,18 @@ jobs:
         run: |
           shard_index=${{ matrix.shardIndex }}
           yaml_content=$(< .github/workflows/test_mapping.yml)
+          echo "YAML Content:"
+          echo "$yaml_content"
           shard_tests=$(awk -v idx=$shard_index '/shards:/ {f=1; next} f && /tests:/ {f=0} f && /- / {if(++c==idx) {print $0; exit}}' <<< "$yaml_content")
+          echo "Extracted tests:"
+          echo "$shard_tests"
           echo "::set-output name=shardTests::$shard_tests"
 
       - name: Check parsed YAML output
         run: |
           echo "Parsed YAML output:"
           echo "${{ steps.load_and_parse_yaml.outputs.shardTests }}"
+
 
       - name: Run Playwright tests
         id: playwright_tests
