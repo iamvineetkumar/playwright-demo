@@ -41,9 +41,11 @@ jobs:
           echo "::set-output name=yamlContent::$yaml_content"
 
       - name: Set shard config
+        id: set_shard_config
         run: |
           shard_config="${{ steps.load_yaml.outputs.yamlContent }}"
           echo "::set-output name=shardConfig::$shard_config"
+
 
       - name: Run Playwright tests
         id: playwright_tests
