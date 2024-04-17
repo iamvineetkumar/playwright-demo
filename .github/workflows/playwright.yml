@@ -34,21 +34,19 @@ jobs:
           yaml_content=$(< .github/workflows/test_mapping.yml)
           echo "::set-output name=yamlContent::$yaml_content"
 
+      - name: Load and Parse YAML File
+        id: load_yaml
+        run: |
+          yaml_content=$(<.github/workflows/test_mapping.yml)
+          echo "::set-output name=yamlContent::$yaml_content"
       - name: Run Playwright tests
         id: playwright_tests
         run: |
           shard_config=$(< .github/workflows/test_mapping.yml)
-          echo "Value of shard_config:"
-          echo "$shard_config"
-
           shard_index=${{ matrix.shardIndex }}
-          shard_tests=$(echo "$shard_config" | jq -r ".shards[$shard_index - 1].tests | .[]")
+          shard_tests=$(echo "$shard_config" | yq eval ".shards[$shard_index].tests | .[]" -)
           echo "Shard tests for shard $shard_index:"
           echo "$shard_tests"
-          
-          # Debugging: Print the value of shard_tests
-          echo "Value of shard_tests: $shard_tests"
-          
           # Iterate over each test file and execute it
           for test_file in $shard_tests; do
             echo "Running test file: $test_file"
