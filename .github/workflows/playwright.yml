@@ -32,8 +32,11 @@ jobs:
       - name: Load and Parse JSON File
         id: load_json_data
         run: |
+          echo "1"
           const fs = require('fs');
+          echo "2"
           const testsJson = fs.readFileSync('tests/test-case.json', 'utf8');
+          echo "3"
           console.log(`::set-output name=testsJson::${JSON.stringify(testsJson)}`);
           
 
