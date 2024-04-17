@@ -46,6 +46,7 @@ jobs:
          echo "Shard tests for shard ${{ matrix.shardIndex }}:"
          echo "one"
          echo "$shard_tests"
+         echo "two"
          npx playwright test $shard_tests --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
  
 
