@@ -29,6 +29,12 @@ jobs:
           npm install playwright
           # Add any other dependencies needed for your tests
 
+      - name: Install jq
+        run: |
+          wget -O jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+          chmod +x jq
+          sudo mv jq /usr/local/bin
+
       - name: Load and Parse JSON File
         id: load_json_data
         run: |
@@ -37,7 +43,7 @@ jobs:
           echo "2"
           const testsJson = fs.readFileSync('tests/test-case.json', 'utf8');
           echo "3"
-          console.log(`::set-output name=testsJson::${JSON.stringify(testsJson)}`);
+          echo "::set-output name=testsJson::${testsJson}"
           
 
       - name: Calculate tests per shard
