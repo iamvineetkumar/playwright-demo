@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shardIndex: [1, 2, 3, 4] # Shard indices remain 1, 2, 3, 4
+        shardIndex: [1, 2, 3, 4]
         shardTotal: [4]
     steps:
       - uses: actions/checkout@v4
@@ -29,48 +29,41 @@ jobs:
           npm install playwright
           # Add any other dependencies needed for your tests
 
+      - name: Load and Parse JSON File
+        id: load_json_data
+        run: |
+          testsJson=$(cat tests/test-case.json)
+          echo "::set-output name=testsJson::$testsJson"
       - name: Install jq
         run: |
           wget -O jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
           chmod +x jq
           sudo mv jq /usr/local/bin
-
-      - name: Load and Parse JSON File
-        id: load_json_data
-        run: |
-          echo "1"
-          const fs = require('fs');
-          echo "2"
-          const testsJson = fs.readFileSync('tests/test-case.json', 'utf8');
-          echo "3"
-          echo "::set-output name=testsJson::${testsJson}"
-          
-
       - name: Calculate tests per shard
         id: calculate_tests_per_shard
         run: |
-          testsJson = JSON.parse('${{ steps.load_json.outputs.testsJson }}');
-          totalTests = testsJson.length;
-          testsPerShard = Math.ceil(totalTests / ${{ matrix.shardTotal }});
-          echo "::set-output name=testsPerShard::${testsPerShard}"
+          testsJson="${{ steps.load_json_data.outputs.testsJson }}"
+          totalTests=$(echo "$testsJson" | jq length)
+          testsPerShard=$((totalTests / ${{ matrix.shardTotal }} + 1))
+          echo "::set-output name=testsPerShard::$testsPerShard"
 
       - name: Run Playwright tests
         id: playwright_tests
         run: |
-          testsJson = JSON.parse('${{ steps.load_json.outputs.testsJson }}');
-          shardIndex = ${{ matrix.shardIndex }};
-          testsPerShard = ${{ steps.calculate_tests_per_shard.outputs.testsPerShard }};
-          startIndex = (shardIndex - 1) * testsPerShard;
-          endIndex = Math.min(startIndex + testsPerShard, testsJson.length);
-          testsForShard = testsJson.slice(startIndex, endIndex);
+          testsJson="${{ steps.load_json_data.outputs.testsJson }}"
+          shardIndex=${{ matrix.shardIndex }}
+          testsPerShard=${{ steps.calculate_tests_per_shard.outputs.testsPerShard }}
+          startIndex=$(( (shardIndex - 1) * testsPerShard ))
+          endIndex=$(( startIndex + testsPerShard - 1 ))
+          testsForShard=$(echo "$testsJson" | jq -r ".[$startIndex:$endIndex][]")
 
           echo "Shard tests for shard $shardIndex:"
           echo "$testsForShard"
 
           # Iterate over each test file and execute it
-          for test in "${testsForShard[@]}"; do
+          for test in $testsForShard; do
             echo "Running test file: $test"
-            npx playwright test $test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
+            npx playwright test "$test" --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
           done
 
       - name: Upload test reports
