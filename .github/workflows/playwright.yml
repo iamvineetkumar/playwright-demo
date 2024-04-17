@@ -40,10 +40,14 @@ jobs:
           yaml_content=$(<.github/workflows/test_mapping.yml)
           echo "::set-output name=yamlContent::$yaml_content"
 
+      - name: Set shard config
+        run: |
+          shard_config="${{ steps.load_yaml.outputs.yamlContent }}"
+          echo "::set-output name=shardConfig::$shard_config"
+
       - name: Run Playwright tests
         id: playwright_tests
         run: |
-          shard_config="${{ .github/workflows/test_mapping.yml }}"
           shard_index=${{ matrix.shardIndex }}
           shard_tests=$(echo "$shard_config" | awk "/$shard_index:/ {f=1} f && /tests:/ {print; if (f) f=0}")
           echo "Shard tests for shard $shard_index:"
