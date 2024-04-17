@@ -33,7 +33,8 @@ jobs:
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
-
+      - name: Install jq
+        run: apt-get install jq
       - name: Load and Parse YAML File
         id: load_yaml
         run: |
@@ -43,10 +44,10 @@ jobs:
       - name: Set shard config
         id: set_shard_config
         run: |
-          echo "YAML Content: ${{ steps.load_yaml.outputs.yamlContent }}"
-          shard_config="${{ steps.load_yaml.outputs.yamlContent }}"
+          shard_config=$(echo "${{ steps.load_yaml.outputs.yamlContent }}" | jq -r '.')
           echo "Shard Config: $shard_config"
           echo "::set-output name=shardConfig::$shard_config"
+
 
 
 
