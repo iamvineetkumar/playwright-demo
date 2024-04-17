@@ -52,7 +52,7 @@ jobs:
       - name: Run Playwright tests
         id: playwright_tests
         run: |
-         shard_tests=${{ steps.load_shards.outputs.shardConfig }}
+         shard_tests=${{ steps.load_yaml.outputs.shardConfig }}
          echo "Shard tests for shard ${{ matrix.shardIndex }}:"
          echo "$shard_tests"
          npx playwright test $shard_tests --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
