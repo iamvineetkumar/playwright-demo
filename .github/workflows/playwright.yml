@@ -33,21 +33,13 @@ jobs:
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
-      - name: Download yq binary
-        run: |
-          wget https://github.com/mikefarah/yq/releases/download/v4.11.1/yq_linux_amd64 -O ~/yq
-          chmod +x ~/yq
-          mkdir -p ~/.local/bin
-          mv ~/yq ~/.local/bin/
-
-      - name: Set PATH environment variable
-        run: echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
-
-      - name: Load shard configuration
+      - name: Load and process shard configuration
         id: load_shards
         run: |
           shard_config=$(< .github/workflows/test_mapping.yml)
-          echo "::set-output name=shardConfig::$shard_config"
+          shard_index=${{ matrix.shardIndex }}
+          shard_tests=$(echo "$shard_config" | sed -n "s/^shards:\s*//p" | sed -n "${shard_index}p" | awk -F'[: ]' '{print $3}')
+          echo "::set-output name=shardConfig::$shard_tests"
 
       - name: Print tests in shard
         run: |
@@ -56,24 +48,15 @@ jobs:
           shard_tests=$(echo "$shard_config" | yq eval ".shards[$shard_index].tests | .[]" -)
           echo "Shard tests for shard $shard_index:"
           echo "$shard_tests"
-      - name: Grant Read-Write Access to test_mapping.yml
-        run: |
-          chmod +rw .github/workflows/test_mapping.yml
+    
       - name: Run Playwright tests
         id: playwright_tests
         run: |
-          shard_config=$(< .github/workflows/test_mapping.yml)
-          shard_index=${{ matrix.shardIndex }}
-          shard_tests=$(echo "$shard_config" | yq eval ".shards[$shard_index].tests | .[]" -)
-          echo "11111"
-          echo "Shard tests for shard $shard_index:"
-          echo "22222"
-          echo "$shard_tests"
-          echo "333333"
-          echo "npx playwright test $shard_tests --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt"
-          echo "5555"
-          npx playwright test $shard_tests --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
-
+         shard_tests=${{ steps.load_shards.outputs.shardConfig }}
+         echo "Shard tests for shard ${{ matrix.shardIndex }}:"
+         echo "$shard_tests"
+         npx playwright test $shard_tests --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
+ 
 
       - name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
