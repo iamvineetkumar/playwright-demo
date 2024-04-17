@@ -42,8 +42,8 @@ jobs:
       - name: Calculate tests per shard
         id: calculate_tests_per_shard
         run: |
-          testsJson=$(cat tests/test-case.json)
-          totalTests=$(echo "$testsJson" | jq length)
+          testsJsonIs=$(cat tests/test-case.json)
+          totalTests=$(echo "$testsJsonIs" | jq length)
           testsPerShard=$((totalTests / ${{ matrix.shardTotal }} + 1))
           echo "::set-output name=testsPerShard::$testsPerShard"
 
