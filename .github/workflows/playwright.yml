@@ -43,8 +43,11 @@ jobs:
       - name: Set shard config
         id: set_shard_config
         run: |
+          echo "YAML Content: ${{ steps.load_yaml.outputs.yamlContent }}"
           shard_config="${{ steps.load_yaml.outputs.yamlContent }}"
+          echo "Shard Config: $shard_config"
           echo "::set-output name=shardConfig::$shard_config"
+
 
 
       - name: Run Playwright tests
