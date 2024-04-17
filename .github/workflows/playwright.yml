@@ -24,6 +24,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
+      - name: Install js-yaml
+        run: npm install js-yaml
+
       - uses: actions/setup-node@v4
         with:
           node-version: 18
