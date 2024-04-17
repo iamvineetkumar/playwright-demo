@@ -33,19 +33,20 @@ jobs:
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
-      - name: Load and Parse YAML File one
+
+      - name: Load and Parse YAML File
         id: load_yaml
         run: |
           yaml_content=$(<.github/workflows/test_mapping.yml)
           echo "::set-output name=yamlContent::$yaml_content"
 
-     - name: Run Playwright tests
+      - name: Run Playwright tests
         id: playwright_tests
         run: |
-         shard_tests=${{ steps.load_yaml.outputs.yamlContent | fromJSON | jq -r ".shards[${{ matrix.shardIndex }}-1].tests[]" }}
-         echo "Shard tests for shard ${{ matrix.shardIndex }}:"
-         echo "$shard_tests"
-         npx playwright test $shard_tests --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
+          shard_tests=${{ steps.load_yaml.outputs.yamlContent | fromJSON | jq -r ".shards[${{ matrix.shardIndex }}-1].tests[]" }}
+          echo "Shard tests for shard ${{ matrix.shardIndex }}:"
+          echo "$shard_tests"
+          npx playwright test $shard_tests --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
 
       - name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
