@@ -56,6 +56,11 @@ jobs:
           echo "$shard_tests"
           echo "::set-output name=shardTests::$shard_tests"
 
+      - name: Check parsed YAML output
+        run: |
+          echo "Parsed YAML output:"
+          echo "${{ steps.parse_yaml.outputs.shardTests }}"
+
       - name: Run Playwright tests
         id: playwright_tests
         run: |
