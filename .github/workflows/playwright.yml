@@ -40,8 +40,8 @@ jobs:
           mkdir -p ~/.local/bin
           mv ~/yq ~/.local/bin/
 
-      - name: Add ~/.local/bin to PATH
-        run: echo "::add-path::$HOME/.local/bin"
+      - name: Set PATH environment variable
+        run: echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
 
       - name: Load shard configuration
         id: load_shards
