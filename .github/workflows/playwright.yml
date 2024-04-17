@@ -24,53 +24,47 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Install js-yaml
-        run: npm install js-yaml
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 14 # or the version you need
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-      - name: Install jq
-        run: apt-get install jq
-      - name: Load and Parse YAML File
-        id: load_yaml
+      - name: Install Playwright and dependencies
         run: |
-          yaml_content=$(<.github/workflows/test_mapping.yml)
-          echo "::set-output name=yamlContent::$yaml_content"
+          npm install playwright
+          # Add any other dependencies needed for your tests
 
-      - name: Set shard config
-        id: set_shard_config
+      - name: Load and Parse JSON File
+        id: load_json
         run: |
-          shard_config=$(echo "${{ steps.load_yaml.outputs.yamlContent }}" | jq -r '.')
-          echo "Shard Config: $shard_config"
-          echo "::set-output name=shardConfig::$shard_config"
+          const fs = require('fs');
+          const testsJson = fs.readFileSync('tests/test-case.json', 'utf8');
+          console.log(`::set-output name=testsJson::${JSON.stringify(testsJson)}`);
 
-
-
+      - name: Calculate tests per shard
+        id: calculate_tests_per_shard
+        run: |
+          testsJson = JSON.parse('${{ steps.load_json.outputs.testsJson }}');
+          totalTests = testsJson.length;
+          testsPerShard = Math.ceil(totalTests / ${{ matrix.shardTotal }});
+          echo "::set-output name=testsPerShard::${testsPerShard}"
 
       - name: Run Playwright tests
         id: playwright_tests
         run: |
-          shard_index=${{ matrix.shardIndex }}
-          shard_tests=$(echo "$shard_config" | awk "/$shard_index:/ {f=1} f && /tests:/ {print; if (f) f=0}")
-          echo "Shard tests for shard $shard_index:"
-          echo "$shard_tests"
-          
-          # Iterate over each test file and execute it
-          for test_file in $shard_tests; do
-            echo "Running test file: $test_file"
-            echo "Node.js version: $(node --version)"
-            echo "Playwright version: $(npx playwright --version)"
-            npx playwright test $test_file --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
-          done
-        
+          testsJson = JSON.parse('${{ steps.load_json.outputs.testsJson }}');
+          shardIndex = ${{ matrix.shardIndex }};
+          testsPerShard = ${{ steps.calculate_tests_per_shard.outputs.testsPerShard }};
+          startIndex = (shardIndex - 1) * testsPerShard;
+          endIndex = Math.min(startIndex + testsPerShard, testsJson.length);
+          testsForShard = testsJson.slice(startIndex, endIndex);
 
-      - name: Upload blob report to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v4
+          echo "Shard tests for shard $shardIndex:"
+          echo "$testsForShard"
+
+          # Iterate over each test file and execute it
+          for test in "${testsForShard[@]}"; do
+            echo "Running test file: $test"
+            npx playwright test $test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
+          done
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v2
         with:
-          name: blob-report-${{ matrix.shardIndex }}
-          path: blob-report
-          retention-days: 1
+          name: shard-${{ matrix.shardIndex }}-test-reports
+          path: executed_tests_shard_${{ matrix.shardIndex }}.txt
