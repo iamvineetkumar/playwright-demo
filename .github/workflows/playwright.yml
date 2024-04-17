@@ -71,7 +71,8 @@ jobs:
             npx playwright test $test_file --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
           done
 
-
+      - name: Display contents of executed tests file
+        run: cat executed_tests_shard_${{ matrix.shardIndex }}.txt
 
 
 
