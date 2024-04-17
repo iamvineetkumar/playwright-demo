@@ -36,14 +36,18 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
+      - name: Install yq
+        run: |
+          sudo add-apt-repository ppa:rmescandon/yq -y
+          sudo apt update
+          sudo apt install yq -y
+
       - name: Load and Parse YAML File
         id: load_and_parse_yaml
         run: |
           shard_index=${{ matrix.shardIndex }}
           yaml_content=$(< .github/workflows/test_mapping.yml)
-          echo "YAML Content:"
-          echo "$yaml_content"
-          shard_tests=$(awk -v idx=$shard_index '/shards:/ {f=1; next} f && /tests:/ {f=0} f && /- / {if(++c==idx) {print $0; exit}}' <<< "$yaml_content")
+          shard_tests=$(echo "$yaml_content" | yq -r ".shards[$shard_index].tests[]")
           echo "Extracted tests:"
           echo "$shard_tests"
           echo "::set-output name=shardTests::$shard_tests"
