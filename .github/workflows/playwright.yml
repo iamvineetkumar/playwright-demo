@@ -43,6 +43,9 @@ jobs:
           echo "Shard tests for shard $shard_index:"
           echo "$shard_tests"
           
+          # Debugging: Print the value of shard_tests
+          echo "Value of shard_tests: $shard_tests"
+          
           # Iterate over each test file and execute it
           for test_file in $shard_tests; do
             echo "Running test file: $test_file"
@@ -50,6 +53,7 @@ jobs:
             echo "Playwright version: $(npx playwright --version)"
             npx playwright test $test_file --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
           done
+
 
       - name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v2
