@@ -30,11 +30,12 @@ jobs:
           # Add any other dependencies needed for your tests
 
       - name: Load and Parse JSON File
-        id: load_json
+        id: load_json_data
         run: |
           const fs = require('fs');
           const testsJson = fs.readFileSync('tests/test-case.json', 'utf8');
           console.log(`::set-output name=testsJson::${JSON.stringify(testsJson)}`);
+          
 
       - name: Calculate tests per shard
         id: calculate_tests_per_shard
