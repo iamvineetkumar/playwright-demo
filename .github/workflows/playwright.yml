@@ -44,6 +44,20 @@ jobs:
         run: |
           shard_config=$(< .github/workflows/test_mapping.yml)
           echo "::set-output name=shardConfig::$shard_config"
+      - name: Load and Parse YAML File
+        id: load_yaml
+        run: |
+          # Read the YAML file content
+          yaml_content=$(cat .github/workflows/test_mapping.yml)
+          
+          # Parse the YAML content using awk (example)
+          shard_index=${{ matrix.shardIndex }}
+          shard_tests=$(echo "$yaml_content" | awk "/shards:/{f=1} f && /tests:/{print; f=0}")
+          
+          # Set the parsed YAML content as an output
+          echo "wohoo"
+          echo "::set-output name=yamlContent::$shard_tests"
+
 
       - name: Print tests in shard
         run: |
@@ -52,10 +66,6 @@ jobs:
           shard_tests=$(echo "$shard_config" | yq eval ".shards[$shard_index].tests | .[]" -)
           echo "Shard tests for shard $shard_index:"
           echo "$shard_tests"
-
-      - name: Grant Read-Write Access to test_mapping.yml
-        run: |
-          chmod +rw .github/workflows/test_mapping.yml
 
       - name: Run Playwright tests
         id: playwright_tests
