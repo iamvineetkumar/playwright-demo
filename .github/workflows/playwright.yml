@@ -34,7 +34,7 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
       - name: Install jq
-        run: sudo apt-get install jq
+        run:  apt-get install jq
 
       - name: Load shard configuration
         id: load_shards
