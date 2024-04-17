@@ -33,12 +33,13 @@ jobs:
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
+
       - name: Load and process shard configuration
         id: load_shards
         run: |
           shard_config=$(< .github/workflows/test_mapping.yml)
           shard_index=${{ matrix.shardIndex }}
-          shard_tests=$(echo "$shard_config" | sed -n "s/^shards:\s*//p" | sed -n "${shard_index}p" | awk -F'[: ]' '{print $3}')
+          shard_tests=$(echo "$shard_config" | sed -n "s/^\s*tests:\s*//p" | sed -n "${shard_index}p" | awk '{$1=$1};1')
           echo "::set-output name=shardConfig::$shard_tests"
 
   
