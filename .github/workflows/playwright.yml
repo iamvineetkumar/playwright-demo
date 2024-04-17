@@ -42,7 +42,7 @@ jobs:
       - name: Calculate tests per shard
         id: calculate_tests_per_shard
         run: |
-          testsJson="${{steps.load_json_data.outputs.testsJson}}"
+          testsJson=$(cat tests/test-case.json)
           totalTests=$(echo "$testsJson" | jq length)
           testsPerShard=$((totalTests / ${{ matrix.shardTotal }} + 1))
           echo "::set-output name=testsPerShard::$testsPerShard"
@@ -50,7 +50,7 @@ jobs:
       - name: Run Playwright tests
         id: playwright_tests
         run: |
-          testsJson="${{steps.load_json_data.outputs.testsJson}}"
+          testsJson=$(cat tests/test-case.json)
           shardIndex=${{matrix.shardIndex}}
           testsPerShard=${{steps.calculate_tests_per_shard.outputs.testsPerShard}}
           startIndex=$(((shardIndex - 1) * testsPerShard))
