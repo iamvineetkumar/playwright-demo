@@ -33,6 +33,11 @@ jobs:
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
+      - name: Load and Parse YAML File one
+        id: load_yaml
+        run: |
+          yaml_content=$(<.github/workflows/test_mapping.yml)
+          echo "::set-output name=yamlContent::$yaml_content"
 
       - name: Load and process shard configuration
         id: load_shards
