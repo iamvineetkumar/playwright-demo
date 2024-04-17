@@ -28,11 +28,6 @@ jobs:
       - name: Install js-yaml
         run: npm install js-yaml
 
-      - name: Load and Parse YAML File
-        id: load_yaml
-        run: |
-          yaml_content=$(< .github/workflows/test_mapping.yml)
-          echo "::set-output name=yamlContent::$yaml_content"
 
       - name: Load and Parse YAML File
         id: load_yaml
