@@ -52,7 +52,7 @@ jobs:
           echo "::set-output name=yamlContent::$yaml_content"
       - name: Run Playwright tests and print test files/functions
         run: |
-          shard_tests=$(cat test.yml | yq -r ".${{ matrix.shardIndex }}.tests[]")
+          shard_tests=$(cat .github/workflows/test_mapping.yml | yq -r ".${{ matrix.shardIndex }}.tests[]")
           for test_file in $shard_tests; do
             echo "Test File: $test_file"
             grep -n -E 'test\(' "$test_file"
