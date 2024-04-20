@@ -47,10 +47,10 @@ jobs:
 
 
 
-      - name: Run Playwright tests
+     - name: Run Playwright tests
         id: playwright_tests
         run: |
-          shard_config=$(<.github/workflows/test_mapping.yml)
+          shard_config=$(echo "${{ steps.load_yaml.outputs.yamlContent }}")
           shard_index=${{ matrix.shardIndex }}
           shard_tests=$(echo "$shard_config" | yq eval ".[$shard_index].tests | .[]" -)
           if [ -z "$shard_tests" ]; then
