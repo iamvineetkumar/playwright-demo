@@ -41,9 +41,8 @@ jobs:
         run: npm install js-yaml
 
       - name: Install jq
-        run: |
-          brew update
-          brew install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
 
       - name: Load and Parse YAML File
         id: load_yaml
