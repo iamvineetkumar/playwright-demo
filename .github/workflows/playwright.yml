@@ -55,7 +55,7 @@ jobs:
       - name: Run Playwright tests and print test files/functions
         run: |
           shard_index=$((${{ matrix.shardIndex }} - 1))
-          shard_tests=$(echo "$(<.github/workflows/test_mapping.yml)" | yq -r ".[$shard_index].tests[]")
+          shard_tests=$(yq eval '.shards | keys_unsorted[]' .github/workflows/test_mapping.yml | while read -r key; do yq eval ".shards.$key.tests[]" .github/workflows/test_mapping.yml; done | sed -n "${shard_index}p")
           echo "Shard Tests: $shard_tests"
           for test_file in $shard_tests; do
             echo "Test File: $test_file"
@@ -64,6 +64,7 @@ jobs:
           echo "npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}"
           npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
         shell: /usr/bin/bash -e {0}
+
 
 
 
