@@ -1,56 +1,35 @@
-name: Playwright Tests
+name: Run Playwright Tests
 
 on:
   push:
-    branches: [dev]
+    branches: [main]
 
 jobs:
   playwright-tests:
-    timeout-minutes: 4
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
         shardIndex: [1, 2, 3, 4]
-        shardTotal: [4]
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Cache Node.js modules
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Install js-yaml
-        run: npm install js-yaml
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
+      - name: Checkout code
+        uses: actions/checkout@v2
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-
-      - name: Install js-yaml
-        run: npm install js-yaml
-
-      - name: Install yq
-        run: |
-          curl -L https://github.com/mikefarah/yq/releases/download/v4.11.1/yq_linux_amd64 -o /usr/local/bin/yq
-          chmod +x /usr/local/bin/yq
-          echo "export PATH=\$PATH:~/.local/bin"
+      - name: Install Playwright
+        run: npm install playwright
 
       - name: Load and Parse YAML File
         id: load_yaml
         run: |
           yaml_content=$(<.github/workflows/test_mapping.yml)
           echo "::set-output name=yamlContent::$yaml_content"
+
+      - name: Debug shard configuration
+        run: |
+          echo "Loaded YAML content:"
+          echo "${{ steps.load_yaml.outputs.yamlContent }}"
 
       - name: Run Playwright tests
         run: |
@@ -59,14 +38,5 @@ jobs:
           shard_tests=$(echo "$shard_config" | yq eval ".shards[$shard_index].tests | .[]" -)
           echo "Shard tests for shard $shard_index:"
           echo "$shard_tests"
-          echo "1"
           # Execute tests for the current shard
           npx playwright test $shard_tests
-          echo "2"
-
-      - name: Upload blob report to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: blob-report-${{ matrix.shardIndex }}
-          path: blob-report
-          retention-days: 1
