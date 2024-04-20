@@ -41,8 +41,9 @@ jobs:
         run: npm install js-yaml
 
       - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
-
+        run: |
+          brew update
+          brew install jq
 
       - name: Load and Parse YAML File
         id: load_yaml
@@ -52,12 +53,15 @@ jobs:
 
       - name: Run Playwright tests and print test files/functions
         run: |
-          #for test_file in $shard_tests; do
-          #  echo "Test File: $test_file"
-          #  grep -n -E 'test\(' "$test_file"
-          #done
+          shard_index=$((${{ matrix.shardIndex }} - 1))
+          shard_tests=$(jq -r ".[$shard_index].tests[]" test.yml)
+          for test_file in $shard_tests; do
+            echo "Test File: $test_file"
+            grep -n -E 'test\(' "$test_file"
+          done
           echo "npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}"
-          #npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+          npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+
 
       - name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v2
