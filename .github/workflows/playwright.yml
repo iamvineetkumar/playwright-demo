@@ -40,8 +40,10 @@ jobs:
       - name: Install js-yaml
         run: npm install js-yaml
 
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
+      - name: Install yq
+        run: |
+          sudo curl -L -o /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v4.13.4/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
 
 
       - name: Load and Parse YAML File
@@ -52,9 +54,8 @@ jobs:
 
       - name: Run Playwright tests and print test files/functions
         run: |
-          cat .github/workflows/test_mapping.yml
           shard_index=$((${{ matrix.shardIndex }} - 1))
-          shard_tests=$(awk "/tests:/ {f=1; next} /- tests/ {f=0} f" .github/workflows/test_mapping.yml | sed 's/^[ \t]*- //')
+          shard_tests=$(echo "$(<.github/workflows/test_mapping.yml)" | yq -r ".[$shard_index].tests[]")
           echo "Shard Tests: $shard_tests"
           for test_file in $shard_tests; do
             echo "Test File: $test_file"
@@ -63,6 +64,7 @@ jobs:
           echo "npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}"
           npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
         shell: /usr/bin/bash -e {0}
+
 
 
 
