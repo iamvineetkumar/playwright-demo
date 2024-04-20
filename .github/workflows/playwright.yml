@@ -68,7 +68,7 @@ jobs:
             echo "1"
             echo "npx playwright test $test_file --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt --list"
             echo "3"
-            npx playwright test $shard_tests --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt 
+            npx playwright test $shard_tests --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt  --list
             echo "4"
           done
 
