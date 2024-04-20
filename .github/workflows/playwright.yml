@@ -52,10 +52,6 @@ jobs:
           echo "::set-output name=yamlContent::$yaml_content"
       - name: Run Playwright tests and print test files/functions
         run: |
-          for file in tests/*.ts; do
-            echo "File: $file"
-            grep -n -E 'test\(' "$file"
-          done
           echo "npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}"
           npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
