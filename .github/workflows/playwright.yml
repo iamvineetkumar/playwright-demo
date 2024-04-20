@@ -56,6 +56,7 @@ jobs:
           shard_index=$((${{ matrix.shardIndex }} - 1))
           echo "2"
           shard_tests=$(cat .github/workflows/test_mapping.yml | grep -oP "(?<=tests: )\[.*?\]" | jq -r ".[$shard_index][]")
+          echo $shard_tests
           echo "3"
           for test_file in $shard_tests; do
           echo "4"
