@@ -50,7 +50,6 @@ jobs:
           yaml_content=$(<.github/workflows/test_mapping.yml)
           echo "::set-output name=yamlContent::$yaml_content"
       - name: Run Playwright tests and print test files/functions
-      - name: Run Playwright tests and print test files/functions
         run: |
           shard_tests=$(jq -r ".[${{ matrix.shardIndex - 1 }}].tests[]" test.yml)
           for test_file in $shard_tests; do
