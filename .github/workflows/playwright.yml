@@ -37,6 +37,7 @@ jobs:
           shard_index=${{ matrix.shardIndex }}
           shard_tests=$(echo "$shard_config" | yq eval ".shards[$shard_index].tests | .[]" -)
           echo "Shard tests for shard $shard_index:"
+          echo "1"
           echo "$shard_tests"
           # Execute tests for the current shard
           npx playwright test $shard_tests
