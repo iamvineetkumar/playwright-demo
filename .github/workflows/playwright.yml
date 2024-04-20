@@ -1,24 +1,44 @@
-name: Run Playwright Tests
+name: Playwright Tests
 
 on:
   push:
-    branches: [main]
+    branches: [dev]
 
 jobs:
   playwright-tests:
+    timeout-minutes: 4
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         shardIndex: [1, 2, 3, 4]
+        shardTotal: [4]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install js-yaml
+        run: npm install js-yaml
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Install Playwright
-        run: npm install playwright
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Install js-yaml
+        run: npm install js-yaml
 
       - name: Load and Parse YAML File
         id: load_yaml
@@ -37,7 +57,13 @@ jobs:
           shard_index=${{ matrix.shardIndex }}
           shard_tests=$(echo "$shard_config" | yq eval ".shards[$shard_index].tests | .[]" -)
           echo "Shard tests for shard $shard_index:"
-          echo "1"
           echo "$shard_tests"
           # Execute tests for the current shard
           npx playwright test $shard_tests
+
+      - name: Upload blob report to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: blob-report-${{ matrix.shardIndex }}
+          path: blob-report
+          retention-days: 1
