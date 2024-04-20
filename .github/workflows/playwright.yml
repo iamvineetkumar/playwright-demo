@@ -45,22 +45,19 @@ jobs:
           chmod +x /usr/local/bin/yq
           echo "export PATH=\$PATH:~/.local/bin"
 
-
-
       - name: Load and Parse YAML File
         id: load_yaml
         run: |
           yaml_content=$(<.github/workflows/test_mapping.yml)
           echo "::set-output name=yamlContent::$yaml_content"
       - name: Run Playwright tests and print test files/functions
-      run: |
-        for file in tests/*.ts; do
+        run: |
+          for file in tests/*.ts; do
             echo "File: $file"
             grep -n -E 'test\(' "$file"
-        done
-        echo "npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}"
-        npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
-
+          done
+          echo "npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}"
+          npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
       - name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v2
