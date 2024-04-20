@@ -59,6 +59,7 @@ jobs:
           done
           echo "npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}"
           npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+          echo "test executed"
 
 
       - name: Upload blob report to GitHub Actions Artifacts
