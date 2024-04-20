@@ -43,7 +43,7 @@ jobs:
       - name: Load and Parse YAML File
         id: load_yaml
         run: |
-          yaml_content=$(<shards.yml)
+          yaml_content=$(<.github/workflows/test_mapping.yml)
           echo "::set-output name=yamlContent::$yaml_content"
 
       - name: Debug shard configuration
