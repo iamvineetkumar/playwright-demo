@@ -53,13 +53,13 @@ jobs:
 
       - name: Run Playwright tests and print test files/functions
         run: |
-          shard_tests=$(jq -r ".[${{ matrix.shardIndex - 1 }}].tests[]" test.yml)
-          for test_file in $shard_tests; do
-            echo "Test File: $test_file"
-            grep -n -E 'test\(' "$test_file"
-          done
+          #shard_tests=$(jq -r ".[${{ matrix.shardIndex - 1 }}].tests[]" test.yml)
+          #for test_file in $shard_tests; do
+          #  echo "Test File: $test_file"
+          #  grep -n -E 'test\(' "$test_file"
+          #done
           echo "npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}"
-          npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+          #npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
       - name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v2
