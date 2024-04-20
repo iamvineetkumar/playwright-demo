@@ -39,13 +39,14 @@ jobs:
 
       - name: Install js-yaml
         run: npm install js-yaml
+
       - name: Install yq
         run: |
           curl -L https://github.com/mikefarah/yq/releases/download/v4.11.1/yq_linux_amd64 -o /usr/local/bin/yq
           chmod +x /usr/local/bin/yq
           echo "export PATH=\$PATH:~/.local/bin"
 
-       - name: Load and Parse YAML File
+      - name: Load and Parse YAML File
         id: load_yaml
         run: |
           yaml_content=$(<shards.yml)
@@ -60,8 +61,6 @@ jobs:
           echo "$shard_tests"
           # Execute tests for the current shard
           npx playwright test $shard_tests
-
-
 
       - name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v2
