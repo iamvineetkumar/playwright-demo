@@ -52,7 +52,7 @@ jobs:
 
       - name: Run Playwright tests and print test files/functions
         run: |
-          shard_index=$((${{ matrix.shardIndex }} - 1))
+          shard_index=$(( ${{ matrix.shardIndex }} - 1 ))
           shard_tests=$(jq -r ".[$shard_index].tests[]" .github/workflows/test_mapping.yml)
           for test_file in $shard_tests; do
             echo "Test File: $test_file"
