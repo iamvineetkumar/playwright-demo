@@ -41,8 +41,8 @@ jobs:
         run: npm install js-yaml
       - name: Install yq
         run: |
-          curl -L https://github.com/mikefarah/yq/releases/download/v4.11.1/yq_linux_amd64 -o /local/bin/yq
-          chmod +x /local/bin/yq
+          curl -L https://github.com/mikefarah/yq/releases/download/v4.11.1/yq_linux_amd64 -o local/bin/yq
+          chmod +x local/bin/yq
           echo "export PATH=\$PATH:~/.local/bin"
 
 
