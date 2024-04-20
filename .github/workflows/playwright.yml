@@ -39,6 +39,7 @@ jobs:
 
       - name: Install js-yaml
         run: npm install js-yaml
+
       - name: Install jq
         run: |
           brew update
@@ -49,6 +50,7 @@ jobs:
         run: |
           yaml_content=$(<.github/workflows/test_mapping.yml)
           echo "::set-output name=yamlContent::$yaml_content"
+
       - name: Run Playwright tests and print test files/functions
         run: |
           shard_tests=$(jq -r ".[${{ matrix.shardIndex - 1 }}].tests[]" test.yml)
@@ -58,8 +60,6 @@ jobs:
           done
           echo "npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}"
           npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
-
-
 
       - name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v2
