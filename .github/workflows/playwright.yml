@@ -52,7 +52,7 @@ jobs:
         run: |
           yaml_content=$(<.github/workflows/test_mapping.yml)
           echo "::set-output name=yamlContent::$yaml_content"
-     - name: Run Playwright tests and print test files/functions
+      - name: Run Playwright tests and print test files/functions
       run: |
         for file in tests/*.ts; do
             echo "File: $file"
