@@ -39,18 +39,19 @@ jobs:
 
       - name: Install js-yaml
         run: npm install js-yaml
+      - name: Install yq
+        run: |
+          curl -L https://github.com/mikefarah/yq/releases/download/v4.11.1/yq_linux_amd64 -o /usr/local/bin/yq
+          chmod +x /usr/local/bin/yq
+          echo "export PATH=\$PATH:~/.local/bin"
+
+
 
       - name: Load and Parse YAML File
         id: load_yaml
         run: |
           yaml_content=$(<.github/workflows/test_mapping.yml)
           echo "::set-output name=yamlContent::$yaml_content"
-
-      - name: Debug shard configuration
-        run: |
-          echo "Loaded YAML content:"
-          echo "${{ steps.load_yaml.outputs.yamlContent }}"
-
       - name: Run Playwright tests
         run: |
           shard_config=$(echo "${{ steps.load_yaml.outputs.yamlContent }}")
@@ -64,3 +65,12 @@ jobs:
             # Execute tests for the current shard
             npx playwright test $shard_tests
           fi
+
+
+
+      - name: Upload blob report to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: blob-report-${{ matrix.shardIndex }}
+          path: blob-report
+          retention-days: 1
