@@ -52,8 +52,8 @@ jobs:
           echo "::set-output name=yamlContent::$yaml_content"
       - name: Run Playwright tests and print test files/functions
         run: |
-          echo "npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}"
-          npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+          echo "npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --list"
+          npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --list
 
       - name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v2
