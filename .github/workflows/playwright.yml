@@ -39,11 +39,10 @@ jobs:
 
       - name: Install js-yaml
         run: npm install js-yaml
-      - name: Install yq
+      - name: Install jq
         run: |
-          curl -L https://github.com/mikefarah/yq/releases/download/v4.11.1/yq_linux_amd64 -o /usr/local/bin/yq
-          chmod +x /usr/local/bin/yq
-          echo "export PATH=\$PATH:~/.local/bin"
+          brew update
+          brew install jq
 
       - name: Load and Parse YAML File
         id: load_yaml
@@ -51,15 +50,16 @@ jobs:
           yaml_content=$(<.github/workflows/test_mapping.yml)
           echo "::set-output name=yamlContent::$yaml_content"
       - name: Run Playwright tests and print test files/functions
+      - name: Run Playwright tests and print test files/functions
         run: |
-          shard_tests=$(cat .github/workflows/test_mapping.yml | yq -r ".${{ matrix.shardIndex }}.tests[]")
+          shard_tests=$(jq -r ".[${{ matrix.shardIndex - 1 }}].tests[]" test.yml)
           for test_file in $shard_tests; do
             echo "Test File: $test_file"
             grep -n -E 'test\(' "$test_file"
           done
           echo "npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}"
           npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
-          echo "test executed"
+
 
 
       - name: Upload blob report to GitHub Actions Artifacts
