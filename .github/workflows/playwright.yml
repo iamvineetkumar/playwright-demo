@@ -47,30 +47,29 @@ jobs:
 
 
 
-      - name: Load and Parse YAML File
-        id: load_yaml
-        run: |
-          yaml_content=$(<.github/workflows/test_mapping.yml)
-          echo "::set-output name=yamlContent::$yaml_content"
       - name: Run Playwright tests
         id: playwright_tests
         run: |
-          shard_config=$(< .github/workflows/test_mapping.yml)
+          shard_config=$(<.github/workflows/test_mapping.yml)
           shard_index=${{ matrix.shardIndex }}
-          shard_tests=$(echo "$shard_config" | yq eval ".shards[$shard_index].tests | .[]" -)
-          echo "Shard tests for shard $shard_index:"
-          echo "$shard_tests"
-          # Iterate over each test file and execute it
-          for test_file in $shard_tests; do
-            echo "Running test file: $test_file"
-            echo "Node.js version: $(node --version)"
-            echo "Playwright version: $(npx playwright --version)"
-            echo "1"
-            echo "npx playwright test $test_file --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt"
-            echo "3"
-            npx playwright test $test_file --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
-            echo "4"
-          done
+          shard_tests=$(echo "$shard_config" | yq eval ".[$shard_index].tests | .[]" -)
+          if [ -z "$shard_tests" ]; then
+            echo "No tests found for shard $shard_index"
+          else
+            echo "Shard tests for shard $shard_index:"
+            echo "$shard_tests"
+            # Iterate over each test file and execute it
+            for test_file in $shard_tests; do
+              echo "Running test file: $test_file"
+              echo "Node.js version: $(node --version)"
+              echo "Playwright version: $(npx playwright --version)"
+              echo "1"
+              echo "npx playwright test $test_file --shard=${{ matrix.shardIndex }}/${{ strategy.matrix.shardIndex }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt"
+              echo "3"
+              npx playwright test $test_file --shard=${{ matrix.shardIndex }}/${{ strategy.matrix.shardIndex }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
+              echo "4"
+            done
+          fi
 
 
 
