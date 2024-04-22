@@ -65,7 +65,7 @@ jobs:
           echo "$shard_tests"
           # Iterate over each test file and execute it
           
-            npx playwright test $shard_tests  
+            npx playwright test $shard_tests  --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
             echo "4"
 
       - name: Upload blob report to GitHub Actions Artifacts
