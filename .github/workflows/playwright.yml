@@ -3,7 +3,10 @@ name: Playwright Tests
 on:
   push:
     branches: [dev]
-
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 jobs:
   playwright-tests:
     timeout-minutes: 4
