@@ -36,18 +36,17 @@ jobs:
 
      
 
-      - name: Run Playwright tests and print test files/functions
+      - name: Load and Parse JSON File
+        id: load_json
         run: |
-          shard_index=$((${{ matrix.shardIndex }} - 1))
-          shard_tests=$(cat tests/e2e/shard-json.json | jq -r ".shards[$shard_index].tests | .[]")
-          echo "Shard Tests: $shard_tests"
-          for test_file in $shard_tests; do
-            echo "Test File: $test_file"
-            grep -n -E 'test\(' "$test_file"
-          done
-          echo "npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}"
-          npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
-        shell: /usr/bin/bash -e {0}
+          echo "JSON_CONTENT: $JSON_CONTENT"  # Debugging: print JSON_CONTENT
+          echo "$JSON_CONTENT" > tests/e2e/shard-json.json
+          echo "File content:"
+          cat tests/e2e/shard-json.json  # Debugging: print file content
+          shard_index=${{ matrix.shardIndex }}
+          shard_tests=$(node -e "const data = require('./tests/e2e/shard-json.json'); console.log(data.shards['$shard_index'].tests.join(' '));")
+          echo "::set-output name=shardTests::$shard_tests"
+
 
 
       - name: Upload blob report to GitHub Actions Artifacts
