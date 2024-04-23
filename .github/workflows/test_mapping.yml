@@ -1,0 +1,16 @@
+shards:
+  1:
+    tests:
+      - tests/e2e/api/test-1.spec.ts
+      - tests/e2e/api/test-8.spec.ts
+  2:
+    tests:
+      - tests/e2e/setup/test-7.spec.ts
+      - tests/e2e/user1/test-2.spec.ts
+  3:
+    tests:
+      - tests/e2e/user1/test-6.spec.ts
+  4:
+    tests:
+      - tests/rbac/test-3.spec.ts
+      - tests/rbac/test-4.spec.ts
