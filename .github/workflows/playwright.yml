@@ -37,10 +37,15 @@ jobs:
       - name: Load and Parse JSON File
         id: load_json
         run: |
+          echo "1"
           echo "$JSON_CONTENT" > tests/e2e/shard-json.json
+          echo "2"
           cat tests/e2e/shard-json.json  # Print the JSON content
+          echo "3"
           shard_index=${{ matrix.shardIndex }}
+          echo "4"
           shard_tests=$(node -e "const data = require('./tests/e2e/shard-json.json'); console.log(data.shards['$shard_index'].tests.join(' '));")
+          echo "5"
           echo "::set-output name=shardTests::$shard_tests"
 
 
