@@ -34,28 +34,21 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Load and Parse JSON File
-        id: load_json
-        run: |
-          echo "1"
-          echo "$JSON_CONTENT" > tests/e2e/shard-json.json
-          echo "2"
-          cat tests/e2e/shard-json.json  # Print the JSON content
-          echo "3"
-          shard_index=${{ matrix.shardIndex }}
-          echo "4"
-          shard_tests=$(node -e "const data = require('tests/e2e/shard-json.json'); console.log(data.shards['$shard_index'].tests.join(' '));")
-          echo "5"
-          echo "::set-output name=shardTests::$shard_tests"
+     
 
-
-      - name: Run Playwright tests
-        id: playwright_tests
+      - name: Run Playwright tests and print test files/functions
         run: |
-          shard_tests="${{ steps.load_json.outputs.shardTests }}"
-          echo "Shard tests: $shard_tests"
-          # Iterate over each test file and execute it
-          npx playwright test $shard_tests --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
+          shard_index=$((${{ matrix.shardIndex }} - 1))
+          shard_tests=$(cat .github/workflows/test_mapping.json | jq -r ".shards[$shard_index].tests | .[]")
+          echo "Shard Tests: $shard_tests"
+          for test_file in $shard_tests; do
+            echo "Test File: $test_file"
+            grep -n -E 'test\(' "$test_file"
+          done
+          echo "npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}"
+          npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+        shell: /usr/bin/bash -e {0}
+
 
       - name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v2
