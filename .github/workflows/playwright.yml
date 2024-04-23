@@ -44,7 +44,7 @@ jobs:
           echo "3"
           shard_index=${{ matrix.shardIndex }}
           echo "4"
-          shard_tests=$(node -e "const data = require('.tests/e2e/shard-json.json'); console.log(data.shards['$shard_index'].tests.join(' '));")
+          shard_tests=$(node -e "const data = require('tests/e2e/shard-json.json'); console.log(data.shards['$shard_index'].tests.join(' '));")
           echo "5"
           echo "::set-output name=shardTests::$shard_tests"
 
