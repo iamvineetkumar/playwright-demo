@@ -1,4 +1,4 @@
-name: Playwright Tests
+=name: Playwright Tests
 
 on:
   push:
@@ -37,9 +37,9 @@ jobs:
       - name: Load and Parse JSON File
         id: load_json
         run: |
-          echo "${{ secrets.JSON_CONTENT }}" > .tests/e2e/shard-json.json
+          echo "${{ secrets.JSON_CONTENT }}" > tests/e2e/shard-json.json
           shard_index=${{ matrix.shardIndex }}
-          shard_tests=$(node -e "const data = require('.tests/e2e/shard-json.json'); console.log(data.shards['$shard_index'].tests.join(' '));")
+          shard_tests=$(node -e "const data = require('./tests/e2e/shard-json.json'); console.log(data.shards['$shard_index'].tests.join(' '));")
           echo "::set-output name=shardTests::$shard_tests"
 
       - name: Run Playwright tests
