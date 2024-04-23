@@ -38,18 +38,17 @@ jobs:
         id: load_json
         run: |
           echo "${{ secrets.JSON_CONTENT }}" > .github/workflows/shard-json.json
-          json_content=$(<.github/workflows/shard-json.json)
-          echo "::set-output name=jsonContent::$json_content"
+          shard_index=${{ matrix.shardIndex }}
+          shard_tests=$(node -e "const data = require('./.github/workflows/shard-json.json'); console.log(data.shards['$shard_index'].tests.join(' '));")
+          echo "::set-output name=shardTests::$shard_tests"
 
       - name: Run Playwright tests
         id: playwright_tests
         run: |
-          shard_index=${{ matrix.shardIndex }}
-          shard_tests=$(jq -r ".shards[\"$shard_index\"].tests | .[]" .github/workflows/shard-json.json)
-          echo "Shard tests for shard $shard_index:"
-          echo "$shard_tests"
+          shard_tests="${{ steps.load_json.outputs.shardTests }}"
+          echo "Shard tests: $shard_tests"
           # Iterate over each test file and execute it
-          npx playwright test
+          npx playwright test $shard_tests --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} | tee executed_tests_shard_${{ matrix.shardIndex }}.txt
 
       - name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v2
