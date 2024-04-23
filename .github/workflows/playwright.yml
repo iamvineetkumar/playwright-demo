@@ -39,7 +39,7 @@ jobs:
         run: |
           echo "${{ secrets.JSON_CONTENT }}" > .github/workflows/shard-json.json
           shard_index=${{ matrix.shardIndex }}
-          shard_tests=$(node -e "const data = require('./.github/workflows/shard-json.json'); console.log(data.shards['$shard_index'].tests.join(' '));")
+          shard_tests=$(node -e "const data = require('.github/workflows/shard-json.json'); console.log(data.shards['$shard_index'].tests.join(' '));")
           echo "::set-output name=shardTests::$shard_tests"
 
       - name: Run Playwright tests
